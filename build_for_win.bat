@@ -83,6 +83,8 @@ echo 开始ninja编译
 echo ---------------------------------------------------------------
 
 :: build
+:: call %ninja% -C %dispatch_path% examples     编译指定target：examples
+:: 默认编译target：default
 call %ninja% -C %dispatch_path%
 if not %errorlevel%==0 (
     echo "ninja build failed"  
