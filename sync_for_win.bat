@@ -51,14 +51,26 @@ cd %webrtc_path%
 if not exist %webrtc_src_path% (
     call fetch --nohooks webrtc
 )
-call gclient sync
+call gclient sync --nohooks --force
+:: call gclient sync --nohooks
 cd %webrtc_src_path%
 call git checkout master
 call git pull origin master
-call gclient sync
+call gclient sync --nohooks
 
 if not %ERRORLEVEL% == 0 (
     echo webrtc同步失败
+    exit 1
+)
+
+echo=
+echo ---------------------------------------------------------------
+echo 定制webrtc
+echo ---------------------------------------------------------------
+
+call python %script_path%custom_webrtc.py
+if not %ERRORLEVEL% == 0 (
+    echo 定制webrtc失败
     exit 1
 )
 
