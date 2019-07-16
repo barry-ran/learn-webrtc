@@ -52,10 +52,11 @@ if not exist %webrtc_src_path% (
     call fetch --nohooks webrtc
 )
 call gclient sync --nohooks --force
-:: call gclient sync --nohooks
 cd %webrtc_src_path%
-call git checkout master
-call git pull origin master
+:: 基于当前最新release分支72来开发
+call git checkout -b branch-heads/72 remotes/branch-heads/72
+call git pull
+:: 切换分支以后必须sync，来同步不同分支的build tools
 call gclient sync --nohooks
 
 if not %ERRORLEVEL% == 0 (
