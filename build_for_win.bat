@@ -42,7 +42,7 @@ if /i %debug_mode% == "true" (
 set depot_tools_path=%script_path%depot_tools
 set PATH=%depot_tools_path%;%PATH%
 
-set GYP_GENERATORS=msvs
+set GYP_GENERATORS=ninja
 set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
 set GYP_MSVS_VERSION=2017
 
@@ -70,7 +70,22 @@ echo ---------------------------------------------------------------
 
 :: ninja file
 :: is_component_build=false   static lib
-call %gn% gen %dispatch_path% --args="is_debug=%debug_mode% rtc_include_tests=false rtc_build_examples=false rtc_enable_protobuf=false rtc_build_tools=false"
+:: rtc_use_h264=true
+set args=is_debug=%debug_mode%
+set args=%args% target_cpu=\"x86\"
+set args=%args% proprietary_codecs=true
+set args=%args% enable_iterator_debugging=true
+set args=%args% is_win_fastlink=true
+set args=%args% use_lld=false
+set args=%args% is_clang=false
+set args=%args% use_rtti=false
+set args=%args% rtc_build_examples=true
+set args=%args% rtc_build_tools=false
+set args=%args% rtc_enable_protobuf=false
+set args=%args% rtc_include_tests=false
+
+call %gn% gen %dispatch_path% --ide=vs2017 --args="%args%"
+
 if not %errorlevel%==0 (
     echo "generate ninja failed"
     exit 1
