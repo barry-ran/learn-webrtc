@@ -74,7 +74,6 @@ echo ---------------------------------------------------------------
 set args=is_debug=%debug_mode%
 set args=%args% target_cpu=\"x86\"
 set args=%args% proprietary_codecs=true
-set args=%args% enable_iterator_debugging=true
 set args=%args% is_win_fastlink=true
 set args=%args% use_lld=false
 set args=%args% is_clang=false
@@ -83,6 +82,10 @@ set args=%args% rtc_build_examples=true
 set args=%args% rtc_build_tools=false
 set args=%args% rtc_enable_protobuf=false
 set args=%args% rtc_include_tests=false
+
+if /i %debug_mode% == "true" (
+    set args=%args% enable_iterator_debugging=true
+)
 
 call %gn% gen %dispatch_path% --ide=vs2017 --args="%args%"
 
