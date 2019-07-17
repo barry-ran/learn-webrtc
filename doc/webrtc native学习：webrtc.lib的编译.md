@@ -39,8 +39,17 @@
     NOMINMAX|windows下max宏和std max冲突
     INCL_EXTRA_HTON_FUNCTIONS|待补充
 
+- 找不到头文件
+根据缺少的头文件来看，需要指定几个头文件包含路径
+
+..\..\..\webrtc\src\third_party\libyuv\include;
+
+..\..\..\webrtc\src\third_party\jsoncpp\source\include;
+
+..\..\..\webrtc\src;..\..\..\webrtc\src\third_party\abseil-cpp
+
 - 出现很多未定义的符号
-未定义的符号只有一个原因，就是相应lib库没有引入，主要分两部分：
+未定义的符号只有一个原因，就是相应lib库没有引入，主要分三部分：
 
 - webrtc在windows下用了很多特定库，例如directshow的库，要引入以下几个库：
 
@@ -60,3 +69,8 @@
     - create_peerconnection_factory.lib
     - rtc_base.lib 
     - json_vc71_libmdd.lib json实现没有暴露出来，需要自己编译一下third_party/jsconcpp
+
+- 有的符号webrtc.lib没有包含，其他导出的lib库都没有包含，例如原gn项目依赖了test中的项目，test没有导出来
+需要我们自己把相关的实现文件复制出来添加到现有工程中
+
+例如webrtc\src\rtc_base\strings\json.cpp中GetStringFromJson相关实现
