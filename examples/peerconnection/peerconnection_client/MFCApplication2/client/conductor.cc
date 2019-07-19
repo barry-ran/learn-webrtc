@@ -19,7 +19,7 @@
 #include "api/create_peerconnection_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
-#include "examples/peerconnection/client/defaults.h"
+#include "defaults.h"
 #include "media/engine/webrtcvideocapturerfactory.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/audio_processing/include/audio_processing.h"

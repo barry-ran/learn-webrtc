@@ -13,7 +13,7 @@
 #include <math.h>
 
 #include "api/video/i420_buffer.h"
-#include "examples/peerconnection/client/defaults.h"
+#include "defaults.h"
 #include "rtc_base/arraysize.h"
 #include "rtc_base/checks.h"
 #include "rtc_base/logging.h"

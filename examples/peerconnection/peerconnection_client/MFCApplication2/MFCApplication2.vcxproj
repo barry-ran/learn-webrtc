@@ -93,12 +93,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;WEBRTC_WIN;WIN32_LEAN_AND_MEAN;USE_BUILTIN_SW_CODECS;HAVE_WEBRTC_VIDEO;NOMINMAX;INCL_EXTRA_HTON_FUNCTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\webrtc\src\third_party\libyuv\include;..\..\..\webrtc\src\third_party\jsoncpp\source\include;..\..\..\webrtc\src;..\..\..\webrtc\src\third_party\abseil-cpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\webrtc\src\third_party\libyuv\include;..\..\..\..\webrtc\src\third_party\jsoncpp\source\include;..\..\..\..\webrtc\src;..\..\..\..\webrtc\src\third_party\abseil-cpp</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>.\client;..\..\..\out\debug\obj;..\..\..\out\debug\obj\api;..\..\..\out\debug\obj\rtc_base</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\client;..\..\..\..\out\debug\obj;..\..\..\..\out\debug\obj\api;..\..\..\..\out\debug\obj\rtc_base</AdditionalLibraryDirectories>
       <AdditionalDependencies>webrtc.lib;create_peerconnection_factory.lib;rtc_base.lib;Secur32.lib;Msdmo.lib;dmoguids.lib;wmcodecdspuuid.lib;json_vc71_libmdd.lib;Shell32.lib;Gdi32.lib;Winmm.lib;Advapi32.lib;strmiids.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -150,14 +150,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;WEBRTC_WIN;WIN32_LEAN_AND_MEAN;USE_BUILTIN_SW_CODECS;HAVE_WEBRTC_VIDEO;NOMINMAX;INCL_EXTRA_HTON_FUNCTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>..\..\..\webrtc\src\third_party\libyuv\include;..\..\..\webrtc\src\third_party\jsoncpp\source\include;..\..\..\webrtc\src;..\..\..\webrtc\src\third_party\abseil-cpp</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\webrtc\src\third_party\libyuv\include;..\..\..\..\webrtc\src\third_party\jsoncpp\source\include;..\..\..\..\webrtc\src;..\..\..\..\webrtc\src\third_party\abseil-cpp</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>webrtc.lib;create_peerconnection_factory.lib;rtc_base.lib;Secur32.lib;Msdmo.lib;dmoguids.lib;wmcodecdspuuid.lib;json_vc71_libmd.lib;Shell32.lib;Gdi32.lib;Winmm.lib;Advapi32.lib;strmiids.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\client;..\..\..\out\release\obj;..\..\..\out\release\obj\api;..\..\..\out\release\obj\rtc_base</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\client;..\..\..\..\out\release\obj;..\..\..\..\out\release\obj\api;..\..\..\..\out\release\obj\rtc_base</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

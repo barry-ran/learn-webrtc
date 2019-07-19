@@ -17,7 +17,7 @@
 
 #include "api/mediastreaminterface.h"
 #include "api/video/video_frame.h"
-#include "examples/peerconnection/client/peer_connection_client.h"
+#include "peer_connection_client.h"
 #include "media/base/mediachannel.h"
 #include "media/base/videocommon.h"
 #if defined(WEBRTC_WIN)
