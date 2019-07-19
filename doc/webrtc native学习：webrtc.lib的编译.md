@@ -25,7 +25,7 @@
     enable_iterator_debugging=true|debug模式要打开这个选项，否则[_ITERATOR_DEBUG_LEVEL](https://docs.microsoft.com/en-us/cpp/standard-library/debug-iterator-support?view=vs-2019)不匹配
          
 
-# 使用webrtc.lib
+# 使用webrtc.lib（以vs工程为例）
 按照以上步骤编译出的webrtc.lib我们可以集成到自己的项目中使用了，不过需要注意几个问题：
 
 - windows下定义几个宏
