@@ -18,6 +18,9 @@ Widget::Widget(QWidget *parent) :
     // step.1 创建DesktopCapturer
     // window
     // windowCapturer只有gdi一种方式
+    // 某些窗口捕获不到画面（例如显存中的（js开发的桌面应用，opengl渲染的页面等）），全黑，gdi获取不到
+    // todo 为什么chrome的web例子可以录制窗口？
+    // https://webrtc.github.io/samples/src/content/getusermedia/getdisplaymedia/
     window_capturer_ = webrtc::DesktopCapturer::CreateWindowCapturer(webrtc::DesktopCaptureOptions::CreateDefault());
     RTC_DCHECK(window_capturer_);
     // step.2 设置回调
@@ -58,9 +61,7 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
                                      QImage::Format_ARGB32);
         // cpu占用高，缩放和渲染都在cpu中，可以通过opengl渲染优化掉
         ui->imageLabel->setPixmap(QPixmap::fromImage(tempImage.scaled(ui->imageLabel->width(), ui->imageLabel->height())));
-
-        // todo 某些窗口捕获不到？全黑？gdi不行？为什么chrome的web例子可以捕获窗口？
-        // https://webrtc.github.io/samples/src/content/getusermedia/getdisplaymedia/
+        
 #if 0
         // save rgba
         QFile file("test.rgba");
