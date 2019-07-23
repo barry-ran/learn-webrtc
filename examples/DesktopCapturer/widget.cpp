@@ -17,6 +17,7 @@ Widget::Widget(QWidget *parent) :
 
     // step.1 创建DesktopCapturer
     // window
+    // windowCapturer只有gdi一种方式
     window_capturer_ = webrtc::DesktopCapturer::CreateWindowCapturer(webrtc::DesktopCaptureOptions::CreateDefault());
     RTC_DCHECK(window_capturer_);
     // step.2 设置回调
@@ -24,6 +25,7 @@ Widget::Widget(QWidget *parent) :
 
     // screen
     webrtc::DesktopCaptureOptions options = webrtc::DesktopCaptureOptions::CreateDefault();
+    // magnification和directx只有ScreenCapturer才支持，windowCapturer只有gdi一种方式
     //options.set_allow_use_magnification_api(true);
     //options.set_allow_directx_capturer(true);
     screen_capturer_ = webrtc::DesktopCapturer::CreateScreenCapturer(options);
@@ -57,7 +59,8 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
         // cpu占用高，缩放和渲染都在cpu中，可以通过opengl渲染优化掉
         ui->imageLabel->setPixmap(QPixmap::fromImage(tempImage.scaled(ui->imageLabel->width(), ui->imageLabel->height())));
 
-        // todo 某些窗口捕获不到？全黑？gdi不行？尝试mag？dx？
+        // todo 某些窗口捕获不到？全黑？gdi不行？为什么chrome的web例子可以捕获窗口？
+        // https://webrtc.github.io/samples/src/content/getusermedia/getdisplaymedia/
 #if 0
         // save rgba
         QFile file("test.rgba");
