@@ -25,7 +25,21 @@ if not %ERRORLEVEL% == 0 (
 
 :: 环境变量设置
 set PATH=%depot_tools_path%;%PATH%
+
+set GYP_GENERATORS=ninja
+set GYP_MSVS_VERSION=2017
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
+
+:: 后面gclient sync需要这几个环境变量
+:: 查找vs路径，通过for将call的结果保存到变量GYP_MSVS_OVERRIDE_PATH
+for /f "tokens=* delims=" %%o in ('call python script/find_vs_path.py') do (
+    set GYP_MSVS_OVERRIDE_PATH=%%o
+)
+echo vs路径=%GYP_MSVS_OVERRIDE_PATH%
+if "%GYP_MSVS_OVERRIDE_PATH%" == "" (
+    echo 未找到vs路径    
+    exit 1
+)
 
 echo=
 echo ---------------------------------------------------------------
@@ -51,13 +65,14 @@ cd %webrtc_path%
 if not exist %webrtc_src_path% (
     call fetch --nohooks webrtc
 )
-call gclient sync --nohooks --force
+call gclient sync --force
 cd %webrtc_src_path%
 :: 基于当前最新release分支72来开发
 call git checkout -b branch-heads/72 remotes/branch-heads/72
 call git pull
 :: 切换分支以后必须sync，来同步不同分支的build tools
-call gclient sync --nohooks
+:: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
+call gclient sync
 
 if not %ERRORLEVEL% == 0 (
     echo webrtc同步失败
