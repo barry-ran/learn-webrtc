@@ -42,6 +42,16 @@ if /i %debug_mode% == "true" (
 set depot_tools_path=%script_path%depot_tools
 set PATH=%depot_tools_path%;%PATH%
 
+:: 查找vs路径，通过for将call的结果保存到变量GYP_MSVS_OVERRIDE_PATH
+for /f "tokens=* delims=" %%o in ('call python script/find_vs_path.py') do (
+    set GYP_MSVS_OVERRIDE_PATH=%%o
+)
+echo vs路径=%GYP_MSVS_OVERRIDE_PATH%
+if "%GYP_MSVS_OVERRIDE_PATH%" == "" (
+    echo 未找到vs路径    
+    exit 1
+)
+
 set GYP_GENERATORS=ninja
 set GYP_MSVS_OVERRIDE_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community
 set GYP_MSVS_VERSION=2017

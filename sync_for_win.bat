@@ -69,7 +69,7 @@ echo ---------------------------------------------------------------
 echo 定制webrtc
 echo ---------------------------------------------------------------
 
-call python %script_path%custom_webrtc.py
+call python %script_path%script/custom_webrtc.py
 if not %ERRORLEVEL% == 0 (
     echo 定制webrtc失败
     exit 1
