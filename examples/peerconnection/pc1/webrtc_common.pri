@@ -35,14 +35,17 @@ win32 {
         message("x86")
 
         CONFIG(debug, debug|release) {
-            DESTDIR = $$PWD/../../../exampleout/win32/debug
-        } else {
-            DESTDIR = $$PWD/../../../exampleout/win32/release
-        }
-
-        LIBS += \
+            DESTDIR = $$PWD/../../../exampleout/win32/debug/pc1
+            LIBS += \
                 -L$$PWD\..\..\..\out\debug\obj -lwebrtc \
                 -L$$PWD\..\..\..\out\debug\obj\api -lcreate_peerconnection_factory \
                 -L$$PWD\..\..\..\out\debug\obj\rtc_base -lrtc_base
+        } else {
+            DESTDIR = $$PWD/../../../exampleout/win32/release/pc1
+            LIBS += \
+                -L$$PWD\..\..\..\out\release\obj -lwebrtc \
+                -L$$PWD\..\..\..\out\release\obj\api -lcreate_peerconnection_factory \
+                -L$$PWD\..\..\..\out\release\obj\rtc_base -lrtc_base
+        }        
     }
 }
