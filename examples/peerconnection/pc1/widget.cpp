@@ -35,7 +35,7 @@ void Widget::on_startBtn_clicked()
 
 void Widget::on_callBtn_clicked()
 {
-
+    peer_connection_a_->Call();
 }
 
 void Widget::on_hangUpBtn_clicked()

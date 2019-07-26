@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QDebug>
 
 #include "peerconnectiona.h"
 
@@ -29,6 +30,12 @@ void PeerConnectionA::Start()
 
 void PeerConnectionA::Call()
 {
+    if (!peer_connection_factory_) {
+        QMessageBox::warning(nullptr, "Error", "You should start first",
+                             QMessageBox::Ok);
+        return;
+    }
+
     if (peer_connection_.get()) {
         QMessageBox::warning(nullptr, "Error", "We only support connecting to one peer at a time",
                              QMessageBox::Ok);
@@ -185,25 +192,25 @@ std::unique_ptr<cricket::VideoCapturer> PeerConnectionA::OpenVideoCaptureDevice(
 
 void PeerConnectionA::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver, const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface> > &streams)
 {
-
+    qDebug() << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
-
+    qDebug() << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
 {
-
+    qDebug() << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 {
-
+    qDebug() << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnFailure(webrtc::RTCError error)
 {
-
+    qDebug() << Q_FUNC_INFO;
 }

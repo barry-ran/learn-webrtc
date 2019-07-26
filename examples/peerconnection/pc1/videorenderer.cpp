@@ -19,7 +19,7 @@ VideoRenderer::~VideoRenderer()
 
 void VideoRenderer::OnFrame(const webrtc::VideoFrame &frame)
 {
-    qDebug() << Q_FUNC_INFO << ">>>>>>>frame: " << frame.width() << frame.height() << frame.size();
+    //qDebug() << Q_FUNC_INFO << ">>>>>>>frame: " << frame.width() << frame.height() << frame.size();
     if (label_) {
         rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
                     frame.video_frame_buffer()->ToI420());
