@@ -26,6 +26,10 @@ protected:
 private Q_SLOTS:
     void on_startBtn_clicked();
 
+    void on_callBtn_clicked();
+
+    void on_hangUpBtn_clicked();
+
 private:
     Ui::Widget *ui;
 

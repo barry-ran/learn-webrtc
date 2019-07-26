@@ -20,7 +20,7 @@ Widget::~Widget()
 }
 
 void Widget::StartLocalRenderer(webrtc::VideoTrackInterface* local_video) {
-    local_renderer_.reset(new VideoRenderer(local_video));
+    local_renderer_.reset(new VideoRenderer(local_video, ui->localLabel));
 }
 
 void Widget::StopLocalRenderer() {
@@ -31,4 +31,14 @@ void Widget::on_startBtn_clicked()
 {
     peer_connection_a_->Start();
     StartLocalRenderer(peer_connection_a_->GetVideoTrack());
+}
+
+void Widget::on_callBtn_clicked()
+{
+
+}
+
+void Widget::on_hangUpBtn_clicked()
+{
+
 }
