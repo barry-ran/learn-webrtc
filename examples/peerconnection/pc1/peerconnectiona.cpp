@@ -117,9 +117,9 @@ bool PeerConnectionA::CreatePeerConnection(bool dtls)
     config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     config.enable_dtls_srtp = dtls;
 
-    webrtc::PeerConnectionInterface::IceServer server;
-    server.uri = "stun:stun.l.google.com:19302";
-    config.servers.push_back(server);
+    //webrtc::PeerConnectionInterface::IceServer server;
+    //server.uri = "stun:stun.l.google.com:19302";
+    //config.servers.push_back(server);
 
     peer_connection_ = peer_connection_factory_->CreatePeerConnection(
         config, nullptr, nullptr, this);
