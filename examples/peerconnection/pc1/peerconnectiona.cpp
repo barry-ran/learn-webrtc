@@ -43,8 +43,15 @@ void PeerConnectionA::Call()
     }
     if (InitializePeerConnection()) {
       //peer_id_ = peer_id;
-      peer_connection_->CreateOffer(
-          this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+      webrtc::PeerConnectionInterface::RTCOfferAnswerOptions options =
+      webrtc::PeerConnectionInterface::RTCOfferAnswerOptions();
+      options.offer_to_receive_audio = 1;
+      options.offer_to_receive_video = 1;
+      peer_connection_->CreateOffer(this, options);
+      const webrtc::SessionDescriptionInterface* sdi = peer_connection_->local_description();
+      //std::string tmp;
+      //sdi->ToString(&tmp);
+      //qDebug() << "local sdi >>>>" << tmp.c_str();
     } else {
         QMessageBox::warning(nullptr, "Error", "Failed to initialize PeerConnection",
                              QMessageBox::Ok);
@@ -109,9 +116,10 @@ bool PeerConnectionA::CreatePeerConnection(bool dtls)
     webrtc::PeerConnectionInterface::RTCConfiguration config;
     config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
     config.enable_dtls_srtp = dtls;
-    //webrtc::PeerConnectionInterface::IceServer server;
-    //server.uri = GetPeerConnectionString();
-    //config.servers.push_back(server);
+
+    webrtc::PeerConnectionInterface::IceServer server;
+    server.uri = "stun:stun.l.google.com:19302";
+    config.servers.push_back(server);
 
     peer_connection_ = peer_connection_factory_->CreatePeerConnection(
         config, nullptr, nullptr, this);
@@ -192,25 +200,35 @@ std::unique_ptr<cricket::VideoCapturer> PeerConnectionA::OpenVideoCaptureDevice(
 
 void PeerConnectionA::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver, const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface> > &streams)
 {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver)
 {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
+}
+
+void PeerConnectionA::OnIceConnectionChange(webrtc::PeerConnectionInterface::IceConnectionState new_state)
+{
+    qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
 {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }
 
 void PeerConnectionA::OnSuccess(webrtc::SessionDescriptionInterface *desc)
 {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
+    //peer_connection_->SetLocalDescription(
+    //    DummySetSessionDescriptionObserver::Create(), desc);
+
+    //std::string sdp;
+    //desc->ToString(&sdp);
 }
 
 void PeerConnectionA::OnFailure(webrtc::RTCError error)
 {
-    qDebug() << Q_FUNC_INFO;
+    qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }
