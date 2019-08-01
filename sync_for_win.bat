@@ -94,4 +94,3 @@ if not %ERRORLEVEL% == 0 (
 cd %old_cd%
 
 echo all同步成功
-exit 0
