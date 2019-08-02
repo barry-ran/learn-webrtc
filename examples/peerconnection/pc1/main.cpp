@@ -3,6 +3,7 @@
 
 #include "rtc_base/win32socketinit.h"
 #include "rtc_base/win32socketserver.h"
+#include "simplepeerconnection.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,9 +12,16 @@ int main(int argc, char *argv[])
     rtc::Win32Thread w32_thread(&w32_ss);
     rtc::ThreadManager::Instance()->SetCurrentThread(&w32_thread);
 
-    QApplication a(argc, argv);
-    Widget w;
-    w.show();
+    SimplePeerConnection::InitPeerConnectionFactory();
+    int exit;
 
-    return a.exec();
+    {
+        QApplication a(argc, argv);
+        Widget w;
+        w.show();
+        exit = a.exec();
+    }
+
+    SimplePeerConnection::ClearPeerConnectionFactory();
+    return exit;
 }

@@ -11,6 +11,7 @@ class Widget;
 }
 
 class PeerConnectionA;
+class PeerConnectionB;
 class Widget : public QWidget
 {
     Q_OBJECT
@@ -33,7 +34,8 @@ private Q_SLOTS:
 private:
     Ui::Widget *ui;
 
-    rtc::scoped_refptr<PeerConnectionA> peer_connection_a_ = nullptr;
+    rtc::scoped_refptr<PeerConnectionA> peer_connection_a_;
+    rtc::scoped_refptr<PeerConnectionB> peer_connection_b_;
     std::unique_ptr<VideoRenderer> local_renderer_ = nullptr;
 };
 

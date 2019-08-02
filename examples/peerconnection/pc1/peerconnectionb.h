@@ -1,22 +1,21 @@
-#ifndef PEERCONNECTIONA_H
-#define PEERCONNECTIONA_H
+#ifndef PEERCONNECTIONB_H
+#define PEERCONNECTIONB_H
 
 #include <QObject>
 
 #include "simplepeerconnection.h"
 
-class PeerConnectionA
+class PeerConnectionB
         : public QObject
         , public SimplePeerConnection
-
 {
     Q_OBJECT
 public:
-    PeerConnectionA(QObject *parent = nullptr);
-    virtual ~PeerConnectionA() override;
+    PeerConnectionB(QObject *parent = nullptr);
+    virtual ~PeerConnectionB() override;
 
-Q_SIGNALS:
-    void CreateOffered(QString type, QString sdp);
+public Q_SLOTS:
+    void OnRecvOffer(QString type, QString sdp);
 
 protected:
     void OnAddTrack(
@@ -33,4 +32,4 @@ protected:
     void OnFailure(webrtc::RTCError error) override;
 };
 
-#endif // PEERCONNECTIONA_H
+#endif // PEERCONNECTIONB_H

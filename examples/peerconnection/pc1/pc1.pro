@@ -27,11 +27,15 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         peerconnectiona.cpp \
+        peerconnectionb.cpp \
+        simplepeerconnection.cpp \
         videorenderer.cpp \
         widget.cpp
 
 HEADERS += \
         peerconnectiona.h \
+        peerconnectionb.h \
+        simplepeerconnection.h \
         videorenderer.h \
         widget.h
 
