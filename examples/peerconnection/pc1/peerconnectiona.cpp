@@ -3,21 +3,17 @@
 
 #include "peerconnectiona.h"
 
-class DummySetSessionDescriptionObserver
-    : public webrtc::SetSessionDescriptionObserver {
- public:
-  static DummySetSessionDescriptionObserver* Create() {
-    return new rtc::RefCountedObject<DummySetSessionDescriptionObserver>();
-  }
-  virtual void OnSuccess() { RTC_LOG(INFO) << __FUNCTION__; }
-  virtual void OnFailure(webrtc::RTCError error) {
-    RTC_LOG(INFO) << __FUNCTION__ << " " << ToString(error.type()) << ": "
-                  << error.message();
-  }
-};
+// a CreateOffer
+// a OnSuccess
+// a SetLocalDescription
+// b SetRemoteDescription
+// b answer
+// b OnSuccess
+// b SetLocalDescription
+// a SetRemoteDescription
 
 PeerConnectionA::PeerConnectionA(QObject *parent)
-    : QObject (parent)
+    : SimplePeerConnection(parent)
 {
 
 }
@@ -25,6 +21,26 @@ PeerConnectionA::PeerConnectionA(QObject *parent)
 PeerConnectionA::~PeerConnectionA()
 {
 
+}
+
+void PeerConnectionA::OnRecvAnswer(QString type, QString sdp)
+{
+    RTC_DCHECK(peer_connection_);
+    std::string type_str = type.toStdString();
+    std::string sdpStr = sdp.toStdString();
+
+    // create session description
+    absl::optional<webrtc::SdpType> type_maybe =
+            webrtc::SdpTypeFromString(type_str);
+    webrtc::SdpType sdpType = *type_maybe;
+
+    webrtc::SdpParseError error;
+    std::unique_ptr<webrtc::SessionDescriptionInterface> session_description =
+            webrtc::CreateSessionDescription(sdpType, sdpStr, &error);
+
+    // set remote session description
+    peer_connection_->SetRemoteDescription(DummySetSessionDescriptionObserver::Create(),
+                                           session_description.release());
 }
 
 void PeerConnectionA::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver, const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface> > &streams)
@@ -44,6 +60,7 @@ void PeerConnectionA::OnIceConnectionChange(webrtc::PeerConnectionInterface::Ice
 
 void PeerConnectionA::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
 {
+    Q_EMIT OnIceCandidated(candidate);
     qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }
 

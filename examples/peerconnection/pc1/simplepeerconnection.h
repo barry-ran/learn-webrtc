@@ -1,14 +1,31 @@
 #ifndef SIMPLEPEERCONNECTION_H
 #define SIMPLEPEERCONNECTION_H
 
+#include <QObject>
+
 #include "api/create_peerconnection_factory.h"
 #include "api/mediastreaminterface.h"
 
-class SimplePeerConnection : public webrtc::PeerConnectionObserver,
-        public webrtc::CreateSessionDescriptionObserver
+class DummySetSessionDescriptionObserver
+    : public webrtc::SetSessionDescriptionObserver {
+ public:
+  static DummySetSessionDescriptionObserver* Create() {
+    return new rtc::RefCountedObject<DummySetSessionDescriptionObserver>();
+  }
+  virtual void OnSuccess() { RTC_LOG(INFO) << __FUNCTION__; }
+  virtual void OnFailure(webrtc::RTCError error) {
+    RTC_LOG(INFO) << __FUNCTION__ << " " << ToString(error.type()) << ": "
+                  << error.message();
+  }
+};
+
+class SimplePeerConnection : public QObject
+        , public webrtc::PeerConnectionObserver
+        , public webrtc::CreateSessionDescriptionObserver
 {
+    Q_OBJECT
 public:
-    SimplePeerConnection();
+    SimplePeerConnection(QObject* parent = nullptr);
     ~SimplePeerConnection() override;
 
     static bool InitPeerConnectionFactory();
@@ -21,6 +38,12 @@ public:
     void CreateTracks();
     void AddTracks();
     void CreateOffer();
+
+Q_SIGNALS:
+    void OnIceCandidated(const webrtc::IceCandidateInterface *candidate);
+
+public Q_SLOTS:
+    void SetIceCandidate(const webrtc::IceCandidateInterface *candidate);
 
 protected:
     std::unique_ptr<cricket::VideoCapturer> OpenVideoCaptureDevice();

@@ -19,7 +19,8 @@ std::unique_ptr<rtc::Thread> SimplePeerConnection::s_signaling_thread;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>
                                     SimplePeerConnection::s_peer_connection_factory;
 
-SimplePeerConnection::SimplePeerConnection()
+SimplePeerConnection::SimplePeerConnection(QObject* parent)
+    : QObject(parent)
 {
 
 }
@@ -135,6 +136,12 @@ void SimplePeerConnection::CreateOffer()
     options.offer_to_receive_audio = 1;
     options.offer_to_receive_video = 1;
     peer_connection_->CreateOffer(this, options);
+}
+
+void SimplePeerConnection::SetIceCandidate(const webrtc::IceCandidateInterface *candidate)
+{
+    RTC_DCHECK(peer_connection_);
+    peer_connection_->AddIceCandidate(candidate);
 }
 
 std::unique_ptr<cricket::VideoCapturer> SimplePeerConnection::OpenVideoCaptureDevice()

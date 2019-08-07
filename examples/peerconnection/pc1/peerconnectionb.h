@@ -1,18 +1,18 @@
 #ifndef PEERCONNECTIONB_H
 #define PEERCONNECTIONB_H
 
-#include <QObject>
-
 #include "simplepeerconnection.h"
 
-class PeerConnectionB
-        : public QObject
-        , public SimplePeerConnection
+class PeerConnectionB : public SimplePeerConnection
 {
     Q_OBJECT
 public:
     PeerConnectionB(QObject *parent = nullptr);
     virtual ~PeerConnectionB() override;
+
+Q_SIGNALS:
+    void CreateAnswered(QString type, QString sdp);
+    void AddTracked(webrtc::VideoTrackInterface* vieo_brack);
 
 public Q_SLOTS:
     void OnRecvOffer(QString type, QString sdp);

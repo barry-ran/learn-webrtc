@@ -24,6 +24,9 @@ protected:
     void StartLocalRenderer(webrtc::VideoTrackInterface* local_video);
     void StopLocalRenderer();
 
+    void StartRemoteRenderer(webrtc::VideoTrackInterface* remote_video);
+    void StopRemoteRenderer();
+
 private Q_SLOTS:
     void on_startBtn_clicked();
 
@@ -36,7 +39,8 @@ private:
 
     rtc::scoped_refptr<PeerConnectionA> peer_connection_a_;
     rtc::scoped_refptr<PeerConnectionB> peer_connection_b_;
-    std::unique_ptr<VideoRenderer> local_renderer_ = nullptr;
+    std::unique_ptr<VideoRenderer> local_renderer_;
+    std::unique_ptr<VideoRenderer> remote_renderer_;
 };
 
 #endif // WIDGET_H
