@@ -1,4 +1,4 @@
-[DesktopCapturer-screenshot]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/DesktopCapturer/screenshot/main.jpg
+[DesktopCapturer-screenshot]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/DesktopCapturer/screenshot/main.png
 
 ![界面](DesktopCapturer-screenshot)
 
