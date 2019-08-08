@@ -1,4 +1,6 @@
-![界面](screenshot/main.jpg)
+[DesktopCapturer-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/DesktopCapturer/screenshot/main.png
+
+![界面][DesktopCapturer-image]
 
 # DesktopCapturer
 在webrtc桌面捕获模块中主要包括两部分，屏幕捕获和窗口捕获：
