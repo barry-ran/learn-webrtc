@@ -1,7 +1,6 @@
 [PeerConnection-introduce]: https://github.com/barry-ran/learn_webrtc/blob/master/doc/webrtc%20native%E5%AD%A6%E4%B9%A0%EF%BC%9APeerConnection%E4%BB%8B%E7%BB%8D.md
 
-[pc1-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/
-peerconnection/pc1/screenshot/main.jpg
+[pc1-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/peerconnection/pc1/screenshot/main.jpg
 
 [pc1-sequence-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/pc1.jpg
 
