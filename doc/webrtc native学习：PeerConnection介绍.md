@@ -1,4 +1,6 @@
 [sdp-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/sdp.jpg
+[IceCandidate-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/IceCandidate.jpg
+[peerconnection-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/peerconnection.jpg
 
 # 简介
 webrtc是基于P2P的，所以P2P是webrtc的精髓，而PeerConnection是实现P2P的核心接口。
@@ -31,10 +33,10 @@ STUN还有一个扩展，即TURN服务器。除了实现STUN的全部功能外�
 
 下面是IceCandidate信息交换的时序图：
 
-![IceCandidate](image/IceCandidate.jpg)
+![IceCandidate][IceCandidate-image]
 
 # PeerConnection建立连接流程
-![peerconnection](image/peerconnection.jpg)
+![peerconnection][peerconnection-image]
 
 上述序列中，WebRTC并不提供Stun服务器和Signal服务器，服务器端需要自己实现。Stun服务器可以用google提供的实现stun协议的测试服务器（stun:stun.l.google.com:19302），Signal服务器则完全需要自己实现了，它需要在offer和answer之间传送彼此的SDP信息和candidate信息，offer和answer通过这些信息建立P2P连接来传送音视频数据。由于网络环境的复杂性，并不是所有的客户端之间都能够建立P2P连接，这种情况下就需要有个relay服务器做音视频数据的中转，这里就不考虑了。这里说明一下， stun/turn、relay服务器的实现在WebRTC源码中都有示例，真是个名副其实的大宝库。
 
