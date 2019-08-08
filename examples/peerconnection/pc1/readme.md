@@ -1,8 +1,6 @@
-[pc1-screenshot]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/peerconnection/pc1/screenshot/main.jpg
 [PeerConnection-introduce]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/webrtc native学习：PeerConnection介绍.md
 
-
-![界面](pc1-screenshot)
+![界面](screenshot/main.jpg)
 
 # pc1
 不用服务器的情况下，建立两个PeerConnection的P2P连接
