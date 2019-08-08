@@ -1,11 +1,13 @@
-[PeerConnection-introduce]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/webrtc native学习：PeerConnection介绍.md
+[PeerConnection-introduce]: https://github.com/barry-ran/learn_webrtc/blob/master/doc/webrtc%20native%E5%AD%A6%E4%B9%A0%EF%BC%9APeerConnection%E4%BB%8B%E7%BB%8D.md
 
-![界面](screenshot/main.jpg)
+[pc1-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/examples/peerconnection/pc1/screenshot/main.jpg
+
+![界面][pc1-image]
 
 # pc1
 不用服务器的情况下，建立两个PeerConnection的P2P连接
 
-通过[PeerConnection介绍](PeerConnection-introduce)我们知道，要想建立两个PeerConnection的P2P连接，需要交换两种信息：
+通过[PeerConnection介绍][PeerConnection-introduce]我们知道，要想建立两个PeerConnection的P2P连接，需要交换两种信息：
 1. SDP：媒体会话描述信息，包括分辨率和编码格式等，用来协调匹配两个Peer的媒体编解码等信息
 2. IceCandidate：ICE相关信息，包括候选地址、网络连接情况等，用来实现NAT穿透
 
