@@ -1,3 +1,5 @@
+[sdp-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/sdp.jpg
+
 # 简介
 webrtc是基于P2P的，所以P2P是webrtc的精髓，而PeerConnection是实现P2P的核心接口。
 
@@ -16,7 +18,7 @@ webrtc用于实现以上信息交换的C++ API就是PeerConnectionInterface。
 
 来个时序图更加直观：
 
-![sdp](image/sdp.jpg)
+![sdp][sdp-image]
 
 ## IceCandidate信息交换
 IceCandidate信息交换是通过ICEInteractive Connectivity Establishment，交互式连接建立）完成的。对于P2P连接最简单的设想是，大家都连接在一个网络中，只要双方都知道对方的IP地址，我就可以直接发送数据。但现实永远不会这么简单：如今的网络世界中，绝大部分设备并不是直接连接到互联网上，具有一个公网IP地址，而是处在层层的路由器和防火墙的背后，这也就使得直接建立连接变得不可能。不过，如果双方都向一个公网上的服务器发送一个请求，这台服务器可以获取到双方的公网地址，这样就可以让双方知晓怎样和对方进行通讯。这就是STUN 服务器。
