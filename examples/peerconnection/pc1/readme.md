@@ -9,6 +9,8 @@
 # pc1
 不用服务器的情况下，建立两个PeerConnection的P2P连接
 
+参考[webrtc js demo](https://webrtc.github.io/samples/src/content/peerconnection/pc1/)
+
 通过[PeerConnection介绍][PeerConnection-introduce]我们知道，要想建立两个PeerConnection的P2P连接，需要交换两种信息：
 1. SDP：媒体会话描述信息，包括分辨率和编码格式等，用来协调匹配两个Peer的媒体编解码等信息
 2. IceCandidate：ICE相关信息，包括候选地址、网络连接情况等，用来实现NAT穿透
