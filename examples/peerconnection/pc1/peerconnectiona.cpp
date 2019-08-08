@@ -3,15 +3,6 @@
 
 #include "peerconnectiona.h"
 
-// a CreateOffer
-// a OnSuccess
-// a SetLocalDescription
-// b SetRemoteDescription
-// b answer
-// b OnSuccess
-// b SetLocalDescription
-// a SetRemoteDescription
-
 PeerConnectionA::PeerConnectionA(QObject *parent)
     : SimplePeerConnection(parent)
 {
@@ -60,6 +51,7 @@ void PeerConnectionA::OnIceConnectionChange(webrtc::PeerConnectionInterface::Ice
 
 void PeerConnectionA::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
 {
+    // 模拟网络发送IceCandidated
     Q_EMIT OnIceCandidated(candidate);
     qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }

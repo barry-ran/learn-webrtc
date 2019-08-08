@@ -6,8 +6,15 @@
 #include "peerconnectiona.h"
 #include "peerconnectionb.h"
 
-// unityplugin
-//SimplePeerConnection
+// sdp交换流程
+// a CreateOffer
+// a OnSuccess
+// a SetLocalDescription
+// b SetRemoteDescription
+// b answer
+// b OnSuccess
+// b SetLocalDescription
+// a SetRemoteDescription
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -16,17 +23,17 @@ Widget::Widget(QWidget *parent)
     , peer_connection_b_(new rtc::RefCountedObject<PeerConnectionB>())
 {
     ui->setupUi(this);
-    // 模拟服务器将a的offer发送给b
+    // 模拟信令服务器将在a和b之间转发sdp信息和IceCandidate信息
     connect(peer_connection_a_, &PeerConnectionA::CreateOffered,
             peer_connection_b_, &PeerConnectionB::OnRecvOffer, Qt::DirectConnection);
     connect(peer_connection_b_, &PeerConnectionB::CreateAnswered,
             peer_connection_a_, &PeerConnectionA::OnRecvAnswer, Qt::DirectConnection);
-
     connect(peer_connection_a_, &SimplePeerConnection::OnIceCandidated,
             peer_connection_b_, &SimplePeerConnection::SetIceCandidate, Qt::DirectConnection);
     connect(peer_connection_b_, &SimplePeerConnection::OnIceCandidated,
             peer_connection_a_, &SimplePeerConnection::SetIceCandidate, Qt::DirectConnection);
 
+    // 渲染b端的视频
     connect(peer_connection_b_, &PeerConnectionB::AddTracked, this,
             [this](webrtc::VideoTrackInterface* vieo_brack){
         StartRemoteRenderer(vieo_brack);

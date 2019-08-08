@@ -62,6 +62,7 @@ void PeerConnectionB::OnIceConnectionChange(webrtc::PeerConnectionInterface::Ice
 
 void PeerConnectionB::OnIceCandidate(const webrtc::IceCandidateInterface *candidate)
 {
+    // 模拟网络发送IceCandidated
     Q_EMIT OnIceCandidated(candidate);
     qDebug() << ">>>>>>>>>>>>>>" << Q_FUNC_INFO;
 }

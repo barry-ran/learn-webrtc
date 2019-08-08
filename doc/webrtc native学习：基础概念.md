@@ -51,6 +51,6 @@ Sink一般的使用流程如下（渲染视频数据为例）：
 ## Transceiver
 
 ## PeerConnection
-它表示一个P2P连接其中的一端。
+它表示一个P2P连接其中的一端(Peer)。
 
 我们知道webrtc是P2P的，所以PeerConnection是webrtc的门面，我们直接使用的都是PeerConnection的接口，它包含了建立p2p连接所需要的所有功能，主要包括设置sdp、创建ice通道、传输媒体数据，传输普通数据等。

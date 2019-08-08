@@ -1,3 +1,6 @@
+[sdp-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/sdp.jpg
+[IceCandidate-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/IceCandidate.jpg
+[peerconnection-image]: https://raw.githubusercontent.com/barry-ran/learn_webrtc/master/doc/image/peerconnection.jpg
 # 简介
 webrtc是基于P2P的，所以P2P是webrtc的精髓，而PeerConnection是实现P2P的核心接口。
 
@@ -15,7 +18,8 @@ webrtc用于实现以上信息交换的C++ API就是PeerConnectionInterface。
 为了完成SDP信息的交换，我们先在offer端用PeerConnectionInterface::CreateOffer()方法创建一个offer，offer创建成功以后会触发CreateSessionDescriptionObserver::OnSuccess回调，回调参数是SessionDescriptionInterface，首先我们在offer端使用PeerConnectionInterface::SetLocalDescription设置本地sdp，然后将SessionDescriptionInterface转为字符串通过signal server传送给answer端，answer端收到SDP后，将字符串SDP转换为SessionDescriptionInterface，在answer端调用PeerConnectionInterface::SetRemoteDescription来设置远端SDP，然后answer端调用PeerConnectionInterface::CreateAnswer来创建一个answer，answer创建成功以后同样会触发CreateSessionDescriptionObserver::OnSuccess回调，回调参数依然是SessionDescriptionInterface，首先我们在answer端使用PeerConnectionInterface::SetLocalDescription设置本地sdp，然后将SessionDescriptionInterface转为字符串通过signal server传送给offer端，offer端收到SDP后，将字符串SDP转换为SessionDescriptionInterface，在offer端调用PeerConnectionInterface::SetRemoteDescription来设置远端SDP。所以总结来说，通信的双方通过调用setLocalDescription() 方法，把自己生成的 SDP 设置成本地描述；通过调用setRemoteDescription() 方法，把对方发给自己的 SDP 设置成远程描述。以上的这个过程，被统称为JSEP（JavaScript Session Establishment Protocol，JavaScript 会话建立协议）。
 
 来个时序图更加直观：
-![sdp](image/sdp.jpg)
+
+![sdp](sdp-image)
 
 ## IceCandidate信息交换
 IceCandidate信息交换是通过ICEInteractive Connectivity Establishment，交互式连接建立）完成的。对于P2P连接最简单的设想是，大家都连接在一个网络中，只要双方都知道对方的IP地址，我就可以直接发送数据。但现实永远不会这么简单：如今的网络世界中，绝大部分设备并不是直接连接到互联网上，具有一个公网IP地址，而是处在层层的路由器和防火墙的背后，这也就使得直接建立连接变得不可能。不过，如果双方都向一个公网上的服务器发送一个请求，这台服务器可以获取到双方的公网地址，这样就可以让双方知晓怎样和对方进行通讯。这就是STUN 服务器。
@@ -27,10 +31,11 @@ IceCandidate信息交换是通过ICEInteractive Connectivity Establishment，交
 STUN还有一个扩展，即TURN服务器。除了实现STUN的全部功能外，当双方由于某种原因（如防火墙）还是没法建立点对点连接时，TURN服务器可以起到中转的作用，让双方可以绕过防火墙进行通讯（事实上绝大多数防火墙被配置为允许从内部向外主动发起的连接）。
 
 下面是IceCandidate信息交换的时序图：
-![IceCandidate](image/IceCandidate.jpg)
+
+![IceCandidate](IceCandidate-image)
 
 # PeerConnection建立连接流程
-![peerconnection](image/peerconnection.jpg)
+![peerconnection](peerconnection-image)
 
 上述序列中，WebRTC并不提供Stun服务器和Signal服务器，服务器端需要自己实现。Stun服务器可以用google提供的实现stun协议的测试服务器（stun:stun.l.google.com:19302），Signal服务器则完全需要自己实现了，它需要在offer和answer之间传送彼此的SDP信息和candidate信息，offer和answer通过这些信息建立P2P连接来传送音视频数据。由于网络环境的复杂性，并不是所有的客户端之间都能够建立P2P连接，这种情况下就需要有个relay服务器做音视频数据的中转，这里就不考虑了。这里说明一下， stun/turn、relay服务器的实现在WebRTC源码中都有示例，真是个名副其实的大宝库。
 
