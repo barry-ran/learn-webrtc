@@ -94,7 +94,7 @@ void Widget::on_getWindowsBtn_clicked()
         if (title.isEmpty()) {
             title = QString::number(it->id);
         }
-        ui->sourceListComBox->addItem(title, it->id);
+        ui->sourceListComBox->addItem(title, QVariant::fromValue(it->id));
     }    
 }
 
@@ -117,6 +117,7 @@ void Widget::on_stopCaptureBtn_clicked()
 
 void Widget::on_sourceListComBox_currentIndexChanged(int index)
 {
+    Q_UNUSED(index);
     source_ = ui->sourceListComBox->currentData().toInt();
     qDebug() << "source_: " << source_;
     if (ui->windowRadio->isChecked()) {
