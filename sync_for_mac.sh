@@ -58,10 +58,14 @@ if [ ! -d $webrtc_src_path ];then
     fetch --nohooks webrtc
 fi
 
-gclient sync
+gclient sync --force
 cd $webrtc_src_path
-git checkout master
-git pull origin master
+
+# 基于当前最新release分支72来开发
+git checkout -b branch-heads/72 remotes/branch-heads/72
+git pull
+# 切换分支以后必须sync，来同步不同分支的build tools
+# 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
 gclient sync
 
 if [ $? -ne 0 ]; then
@@ -73,4 +77,3 @@ fi
 cd $old_cd
 
 echo all同步成功
-exit 0
