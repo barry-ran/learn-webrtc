@@ -18,7 +18,7 @@
     -|-
     is_debug=true|debug还是release
     target_cpu="x86"|编译32位
-    is_clang=false|不适用clang编译器
+    is_clang=false|不使用clang编译器
     rtc_build_examples=true|编译examples，指定了这个才会编译peerconnection相关库
     rtc_build_tools=false|不用编译tools
     rtc_include_tests=false|不用编译tests

@@ -79,11 +79,13 @@ echo gn生成ninja脚本
 echo ---------------------------------------------------------------
 
 :: ninja file
-:: is_component_build=false   static lib
-:: rtc_use_h264=true
 set args=is_debug=%debug_mode%
 set args=%args% target_cpu=\"x86\"
+
+:: 开启H264编码支持
 set args=%args% proprietary_codecs=true
+set args=%args% ffmpeg_branding=\"Chrome\"
+
 set args=%args% is_win_fastlink=true
 set args=%args% use_lld=false
 set args=%args% is_clang=false
