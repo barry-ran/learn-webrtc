@@ -34,3 +34,7 @@
 ## win
 - 执行syc_for_win.bat同步webrtc代码(开发过程只需同步一次即可)
 - 执行build_for_win.bat编译
+
+# TODO
+- ~~MAC下编译出的AppRTCMobile运行失败~~ 用的72分支，改为m76就没问题了
+- peerconnection client为什么没有mac的？
