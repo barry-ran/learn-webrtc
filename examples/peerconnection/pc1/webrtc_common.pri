@@ -1,11 +1,21 @@
 CONFIG += no_keywords
 
 INCLUDEPATH += \
-        $$PWD\..\..\..\webrtc\src\third_party\libyuv\include \
-        $$PWD\..\..\..\webrtc\src \
-        $$PWD\..\..\..\webrtc\src\third_party\abseil-cpp
+        $$PWD/../../../webrtc/src/third_party/libyuv/include \
+        $$PWD/../../../webrtc/src \
+        $$PWD/../../../webrtc/src/third_party/abseil-cpp
 
-#$$PWD\..\..\..\webrtc\src\third_party\jsoncpp\source\include \
+CONFIG(debug, debug|release) {
+    LIBS += \
+            -L$$PWD/../../../out/debug/obj -lwebrtc \
+            -L$$PWD/../../../out/debug/obj/api -lcreate_peerconnection_factory \
+            -L$$PWD/../../../out/debug/obj/rtc_base -lrtc_base
+} else {
+    LIBS += \
+            -L$$PWD/../../../out/release/obj -lwebrtc \
+            -L$$PWD/../../../out/release/obj/api -lcreate_peerconnection_factory \
+            -L$$PWD/../../../out/release/obj/rtc_base -lrtc_base
+}
 
 # ***********************************************************
 # Win平台下配置
@@ -36,16 +46,37 @@ win32 {
 
         CONFIG(debug, debug|release) {
             DESTDIR = $$PWD/../../../exampleout/win32/debug/pc1
-            LIBS += \
-                -L$$PWD\..\..\..\out\debug\obj -lwebrtc \
-                -L$$PWD\..\..\..\out\debug\obj\api -lcreate_peerconnection_factory \
-                -L$$PWD\..\..\..\out\debug\obj\rtc_base -lrtc_base
         } else {
             DESTDIR = $$PWD/../../../exampleout/win32/release/pc1
-            LIBS += \
-                -L$$PWD\..\..\..\out\release\obj -lwebrtc \
-                -L$$PWD\..\..\..\out\release\obj\api -lcreate_peerconnection_factory \
-                -L$$PWD\..\..\..\out\release\obj\rtc_base -lrtc_base
         }        
+    }
+}
+
+# ***********************************************************
+# Mac平台下配置
+# ***********************************************************
+macos {
+    DEFINES += WEBRTC_MAC \
+    WEBRTC_POSIX \
+    USE_BUILTIN_SW_CODECS \
+    HAVE_WEBRTC_VIDEO \
+    INCL_EXTRA_HTON_FUNCTIONS
+
+    # QMAKE_LFLAGS += -F /System/Library/Frameworks/CoreFoundation.framework/
+    LIBS += -framework CoreFoundation \
+            -framework CoreGraphics \
+            -framework IOSurface \
+            -framework Foundation \
+            -framework AppKit \
+            -framework AVFoundation \
+            -framework CoreAudio \
+            -framework AudioToolbox \
+            -framework CoreMedia \
+            -framework CoreVideo
+
+    CONFIG(debug, debug|release) {
+        DESTDIR = $$PWD/../../../exampleout/mac64/debug/desktopcapturer
+    } else {
+        DESTDIR = $$PWD/../../../exampleout/mac64/release/desktopcapturer
     }
 }
