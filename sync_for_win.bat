@@ -1,60 +1,60 @@
 @echo off
 
-:: »ñÈ¡½Å±¾¾ø¶ÔÂ·¾¶
+:: ï¿½ï¿½È¡ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½
 set script_path=%~dp0
-:: ½øÈë½Å±¾ËùÔÚÄ¿Â¼,ÒòÎªÕâ»áÓ°Ïì½Å±¾ÖÐÖ´ÐÐµÄ³ÌÐòµÄ¹¤×÷Ä¿Â¼
+:: ï¿½ï¿½ï¿½ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Â¼,ï¿½ï¿½Îªï¿½ï¿½ï¿½Ó°ï¿½ï¿½Å±ï¿½ï¿½ï¿½Ö´ï¿½ÐµÄ³ï¿½ï¿½ï¿½Ä¹ï¿½ï¿½ï¿½Ä¿Â¼
 set old_cd=%cd%
 cd /d %~dp0
 
 echo=
 echo ---------------------------------------------------------------
-echo ¼ì²édepot_tools
+echo ï¿½ï¿½ï¿½depot_tools
 echo ---------------------------------------------------------------
 set depot_tools_path=%script_path%depot_tools
 if exist %depot_tools_path% (
-    echo %depot_tools_path% ÒÑ´æÔÚ
+    echo %depot_tools_path% ï¿½Ñ´ï¿½ï¿½ï¿½
 ) else (
-    echo %depot_tools_path% ²»´æÔÚ£¬ÏÂÔØdepot_tools
+    echo %depot_tools_path% ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½depot_tools
     call git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 )
-:: if×Ó¾äµÄERRORLEVELÄÃ²»µ½ÕýÈ·µÄÖµ£¬ËùÒÔgit clone½á¹ûÄÃµ½ÕâÀïÅÐ¶Ï
+:: ifï¿½Ó¾ï¿½ï¿½ERRORLEVELï¿½Ã²ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½git cloneï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½
 if not %ERRORLEVEL% == 0 (
-    echo depot_toolsÏÂÔØÊ§°Ü
+    echo depot_toolsï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
     exit 1
 )
 
-:: »·¾³±äÁ¿ÉèÖÃ
+:: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 set PATH=%depot_tools_path%;%PATH%
 
 set GYP_GENERATORS=ninja
 set GYP_MSVS_VERSION=2017
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 
-:: ºóÃægclient syncÐèÒªÕâ¼¸¸ö»·¾³±äÁ¿
-:: ²éÕÒvsÂ·¾¶£¬Í¨¹ýfor½«callµÄ½á¹û±£´æµ½±äÁ¿GYP_MSVS_OVERRIDE_PATH
+:: ï¿½ï¿½ï¿½ï¿½gclient syncï¿½ï¿½Òªï¿½â¼¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+:: ï¿½ï¿½ï¿½ï¿½vsÂ·ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½forï¿½ï¿½callï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½æµ½ï¿½ï¿½ï¿½ï¿½GYP_MSVS_OVERRIDE_PATH
 for /f "tokens=* delims=" %%o in ('call python script/find_vs_path.py') do (
     set GYP_MSVS_OVERRIDE_PATH=%%o
 )
-echo vsÂ·¾¶=%GYP_MSVS_OVERRIDE_PATH%
+echo vsÂ·ï¿½ï¿½=%GYP_MSVS_OVERRIDE_PATH%
 if "%GYP_MSVS_OVERRIDE_PATH%" == "" (
-    echo Î´ÕÒµ½vsÂ·¾¶    
+    echo Î´ï¿½Òµï¿½vsÂ·ï¿½ï¿½    
     exit 1
 )
 
 echo=
 echo ---------------------------------------------------------------
-echo ³õÊ¼»¯depot_tools
+echo ï¿½ï¿½Ê¼ï¿½ï¿½depot_tools
 echo ---------------------------------------------------------------
 call gclient
 
 if not %ERRORLEVEL% == 0 (
-    echo ³õÊ¼»¯depot_toolsÊ§°Ü
+    echo ï¿½ï¿½Ê¼ï¿½ï¿½depot_toolsÊ§ï¿½ï¿½
     exit 1
 )
 
 echo=
 echo ---------------------------------------------------------------
-echo Í¬²½webrtc´úÂë
+echo Í¬ï¿½ï¿½webrtcï¿½ï¿½ï¿½ï¿½
 echo ---------------------------------------------------------------
 set webrtc_path=%script_path%webrtc
 set webrtc_src_path=%webrtc_path%/src
@@ -67,30 +67,31 @@ if not exist %webrtc_src_path% (
 )
 call gclient sync --force
 cd %webrtc_src_path%
-:: »ùÓÚµ±Ç°×îÐÂrelease·ÖÖ§72À´¿ª·¢
+:: ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½ï¿½releaseï¿½ï¿½Ö§72ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 call git checkout -b branch-heads/72 remotes/branch-heads/72
+call git branch --set-upstream-to=remotes/branch-heads/72 branch-heads/72
 call git pull
-:: ÇÐ»»·ÖÖ§ÒÔºó±ØÐësync£¬À´Í¬²½²»Í¬·ÖÖ§µÄbuild tools
-:: ²»ÄÜÔÙ¼Ó--nohooks£¬·ñÔò²»»áÏÂÔØwebrtc\src\buildtools\win\gn.exeµÈ±àÒë¹¤¾ß
+:: ï¿½Ð»ï¿½ï¿½ï¿½Ö§ï¿½Ôºï¿½ï¿½ï¿½ï¿½syncï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Ö§ï¿½ï¿½build tools
+:: ï¿½ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½--nohooksï¿½ï¿½ï¿½ï¿½ï¿½ò²»»ï¿½ï¿½ï¿½ï¿½ï¿½webrtc\src\buildtools\win\gn.exeï¿½È±ï¿½ï¿½ë¹¤ï¿½ï¿½
 call gclient sync
 
 if not %ERRORLEVEL% == 0 (
-    echo webrtcÍ¬²½Ê§°Ü
+    echo webrtcÍ¬ï¿½ï¿½Ê§ï¿½ï¿½
     exit 1
 )
 
 echo=
 echo ---------------------------------------------------------------
-echo ¶¨ÖÆwebrtc
+echo ï¿½ï¿½ï¿½ï¿½webrtc
 echo ---------------------------------------------------------------
 
 call python %script_path%script/custom_webrtc.py
 if not %ERRORLEVEL% == 0 (
-    echo ¶¨ÖÆwebrtcÊ§°Ü
+    echo ï¿½ï¿½ï¿½ï¿½webrtcÊ§ï¿½ï¿½
     exit 1
 )
 
-:: »Ö¸´¹¤×÷Ä¿Â¼
+:: ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿Â¼
 cd %old_cd%
 
-echo allÍ¬²½³É¹¦
+echo allÍ¬ï¿½ï¿½ï¿½É¹ï¿½

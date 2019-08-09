@@ -55,6 +55,7 @@ fi
 
 cd $webrtc_path
 if [ ! -d $webrtc_src_path ];then
+    # fetch --nohooks webrtc_ios
     fetch --nohooks webrtc
 fi
 
@@ -63,6 +64,7 @@ cd $webrtc_src_path
 
 # 基于当前最新release分支72来开发
 git checkout -b branch-heads/72 remotes/branch-heads/72
+git branch --set-upstream-to=remotes/branch-heads/72 branch-heads/72
 git pull
 # 切换分支以后必须sync，来同步不同分支的build tools
 # 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
