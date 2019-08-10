@@ -36,5 +36,10 @@
 - 执行build_for_win.bat编译
 
 # TODO
+- OpenCamera 相关类梳理
+- 录制视频
+- 其他js demo
+
+# F&Q
 - ~~MAC下编译出的AppRTCMobile运行失败~~ 用的72分支，改为m76就没问题了
 - peerconnection client为什么没有mac的？
