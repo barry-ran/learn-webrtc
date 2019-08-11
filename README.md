@@ -42,4 +42,4 @@
 
 # F&Q
 - ~~MAC下编译出的AppRTCMobile运行失败~~ 用的72分支，改为m76就没问题了
-- peerconnection client为什么没有mac的？
+- peerconnection client为什么没有mac的？[PeerConnectionFactory::CreateVideoSource 不支持mac？](https://groups.google.com/forum/#!searchin/discuss-webrtc/mac$20peerconnection%7Csort:date/discuss-webrtc/ebLVdsXdU-g/Ot-80bZQAgAJ)
