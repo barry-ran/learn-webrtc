@@ -102,8 +102,8 @@ cd %webrtc_src_path%
 :: webrtc最新release https://webrtc.org/release-notes/
 :: 基于当前最新release分支m76来开发
 :: m76 === depot_tools 61d3d4b0bd55ee9027a831d27210ddfcbb9531a7
-call git checkout -b branch-heads/m76 remotes/branch-heads/m76
-call git pull
+call git checkout -b branch-heads/m76 refs/remotes/branch-heads/m76
+:: call git pull
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
 call gclient sync

@@ -110,7 +110,9 @@ set args=%args% target_cpu=\"x86\"
 
 :: ¿ªÆôH264±àÂëÖ§³Ö
 set args=%args% proprietary_codecs=true
-set args=%args% ffmpeg_branding=\"Chrome\"
+
+:: m76 not need
+::set args=%args% ffmpeg_branding=\"Chrome\"
 
 set args=%args% is_win_fastlink=true
 set args=%args% use_lld=false
