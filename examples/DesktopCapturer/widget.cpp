@@ -5,7 +5,7 @@
 #include "ui_widget.h"
 
 #include "modules/desktop_capture/desktop_capture_options.h"
-
+#include "rtc_base/checks.h"
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
