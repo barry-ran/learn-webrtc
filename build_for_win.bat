@@ -46,6 +46,29 @@ set GYP_GENERATORS=ninja
 set GYP_MSVS_VERSION=2017
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 
+:: 查找vcvarsall.bat路径
+for /f "tokens=* delims=" %%o in ('call python script/find_vcvarsall_path.py') do (
+    set vcvarsall=%%o
+)
+echo vcvarsall路径=%vcvarsall%
+if "%vcvarsall%" == "" (
+    echo 未找到vcvarsall路径    
+    goto return
+)
+
+:: 注册vc环境
+set cpu_mode=x86
+if /i %cpu_mode% == x86 (
+    call "%vcvarsall%" %cpu_mode%
+) else (
+    call "%vcvarsall%" %cpu_mode%
+)
+
+if not %errorlevel%==0 (
+    echo "vcvarsall 注册失败"
+    goto return
+)
+
 :: 查找vs路径，通过for将call的结果保存到变量GYP_MSVS_OVERRIDE_PATH
 for /f "tokens=* delims=" %%o in ('call python script/find_vs_path.py') do (
     set GYP_MSVS_OVERRIDE_PATH=%%o
@@ -53,8 +76,11 @@ for /f "tokens=* delims=" %%o in ('call python script/find_vs_path.py') do (
 echo vs路径=%GYP_MSVS_OVERRIDE_PATH%
 if "%GYP_MSVS_OVERRIDE_PATH%" == "" (
     echo 未找到vs路径    
-    exit 1
+    goto return
 )
+
+:: fix: No supported Visual Studio can be found
+set vs2017_install=%GYP_MSVS_OVERRIDE_PATH%
 
 :: 设置相关路径
 :: set gn=%script_path%buildtools\win\gn.exe
@@ -103,7 +129,7 @@ call %gn% gen %dispatch_path% --ide=vs2017 --args="%args%"
 
 if not %errorlevel%==0 (
     echo "generate ninja failed"
-    exit 1
+    goto return
 )
 
 echo=
@@ -118,14 +144,16 @@ echo ---------------------------------------------------------------
 call %ninja% -C %dispatch_path%
 if not %errorlevel%==0 (
     echo "ninja build failed"  
-    exit 1
+    goto return
 )
-
-:: 恢复工作目录
-cd %old_cd%
 
 echo=
 echo=
 echo ---------------------------------------------------------------
 echo 完成！
 echo ---------------------------------------------------------------
+
+:return
+
+:: 恢复工作目录
+cd %old_cd%
