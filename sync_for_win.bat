@@ -100,10 +100,9 @@ if not %ERRORLEVEL% == 0 (
 
 cd %webrtc_src_path%
 :: webrtc最新release https://webrtc.org/release-notes/
-:: 由于这个bug https://groups.google.com/forum/#!searchin/discuss-webrtc/$26capture_checker_$20iscurrent|sort:date/discuss-webrtc/HBzGZXL-FvM/SG2TSnaoBAAJ
-:: 所以使用m74学习
-call git checkout -b branch-heads/m74 refs/remotes/branch-heads/m74
-:: call git pull
+:: 使用release m76学习
+call git checkout -b branch-heads/m76 refs/remotes/branch-heads/m76
+
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
 call gclient sync
