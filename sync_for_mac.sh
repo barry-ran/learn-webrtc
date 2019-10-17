@@ -64,7 +64,6 @@ cd $webrtc_src_path
 
 # 基于release分支m74来开发
 git checkout -b branch-heads/m74 refs/remotes/branch-heads/m74
-git pull
 # 切换分支以后必须sync，来同步不同分支的build tools
 # 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
 gclient sync
