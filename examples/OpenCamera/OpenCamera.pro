@@ -40,3 +40,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 include($$PWD/webrtc_common.pri)
+include($$PWD/test/test.pri)
+
+INCLUDEPATH += $$PWD/test
+
+win32 {
+    LIBS += Ole32.lib OleAut32.lib User32.lib
+
+}

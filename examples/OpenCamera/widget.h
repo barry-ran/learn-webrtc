@@ -3,7 +3,8 @@
 
 #include <QWidget>
 
-#include "media/base/videocapturer.h"
+#include "modules/video_capture/video_capture.h"
+#include "vcm_capturer.h"
 
 namespace Ui {
 class Widget;
@@ -34,7 +35,7 @@ private Q_SLOTS:
 private:
     Ui::Widget *ui;
 
-    std::unique_ptr<cricket::VideoCapturer> video_capturer_;
+    std::unique_ptr<webrtc::test::VcmCapturer> vcm_capturer_;
 };
 
 #endif // WIDGET_H

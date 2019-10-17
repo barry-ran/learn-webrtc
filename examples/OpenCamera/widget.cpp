@@ -4,7 +4,6 @@
 #include "widget.h"
 #include "ui_widget.h"
 
-#include "media/engine/webrtcvideocapturerfactory.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "api/video/i420_buffer.h"
 #include "third_party/libyuv/include/libyuv/convert_argb.h"
@@ -55,25 +54,17 @@ void Widget::on_stopBtn_clicked()
 
 void Widget::OpenVideoCaptureDevice()
 {
-    cricket::WebRtcVideoDeviceCapturerFactory factory;
-    std::unique_ptr<cricket::VideoCapturer> capturer;
-    QString name = ui->deviceComBox->currentText();
-    capturer = factory.Create(cricket::Device(name.toStdString(), 0));
-    if (capturer) {
-        video_capturer_.reset(capturer.release());
-        const std::vector<cricket::VideoFormat>* formats = video_capturer_->GetSupportedFormats();
-        if (!formats->empty()) {
-            video_capturer_->Start((*formats)[0]);
-            video_capturer_->AddOrUpdateSink(this, rtc::VideoSinkWants());
-            ui->startBtn->setEnabled(false);
-            ui->stopBtn->setEnabled(true);
-        } else {
-            QMessageBox::warning(this,
-                                 tr("OpenCamera"),
-                                 tr("GetSupportedFormats failed"),
-                                 QMessageBox::Ok);
-            return;
-        }
+    const size_t kWidth = 640;
+    const size_t kHeight = 480;
+    const size_t kFps = 30;
+    const size_t kDeviceIndex = ui->deviceComBox->currentIndex();
+
+    vcm_capturer_ = absl::WrapUnique(webrtc::test::VcmCapturer::Create(kWidth, kHeight, kFps, kDeviceIndex));
+
+    if (vcm_capturer_) {
+        vcm_capturer_->AddOrUpdateSink(this, rtc::VideoSinkWants());
+        ui->startBtn->setEnabled(false);
+        ui->stopBtn->setEnabled(true);
     } else {
         QMessageBox::warning(this,
                              tr("OpenCamera"),
@@ -84,10 +75,9 @@ void Widget::OpenVideoCaptureDevice()
 
 void Widget::CloseVideoCaptureDevice()
 {
-    if (video_capturer_) {
-        video_capturer_->Stop();
-        video_capturer_->RemoveSink(this);
-        video_capturer_.reset();
+    if (vcm_capturer_) {
+        vcm_capturer_->RemoveSink(this);
+        vcm_capturer_.reset();
         ui->startBtn->setEnabled(true);
         ui->stopBtn->setEnabled(false);
     }
@@ -108,7 +98,7 @@ void Widget::on_updateDeviceBtn_clicked()
         char name[kSize] = {0};
         char id[kSize] = {0};
         if (info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
-            ui->deviceComBox->addItem(name);
+            ui->deviceComBox->addItem(name);            
         }
     }
 }
