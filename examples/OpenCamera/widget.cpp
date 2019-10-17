@@ -8,6 +8,8 @@
 #include "api/video/i420_buffer.h"
 #include "third_party/libyuv/include/libyuv/convert_argb.h"
 
+#include "platform_video_capturer.h"
+
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -59,10 +61,9 @@ void Widget::OpenVideoCaptureDevice()
     const size_t kFps = 30;
     const size_t kDeviceIndex = ui->deviceComBox->currentIndex();
 
-    vcm_capturer_ = absl::WrapUnique(webrtc::test::VcmCapturer::Create(kWidth, kHeight, kFps, kDeviceIndex));
-
-    if (vcm_capturer_) {
-        vcm_capturer_->AddOrUpdateSink(this, rtc::VideoSinkWants());
+    video_capturer_ = webrtc::test::CreateVideoCapturer(kWidth, kHeight, kFps, kDeviceIndex);
+    if (video_capturer_) {
+        video_capturer_->AddOrUpdateSink(this, rtc::VideoSinkWants());
         ui->startBtn->setEnabled(false);
         ui->stopBtn->setEnabled(true);
     } else {
@@ -75,9 +76,9 @@ void Widget::OpenVideoCaptureDevice()
 
 void Widget::CloseVideoCaptureDevice()
 {
-    if (vcm_capturer_) {
-        vcm_capturer_->RemoveSink(this);
-        vcm_capturer_.reset();
+    if (video_capturer_) {
+        video_capturer_->RemoveSink(this);
+        video_capturer_.reset();
         ui->startBtn->setEnabled(true);
         ui->stopBtn->setEnabled(false);
     }
