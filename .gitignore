@@ -36,3 +36,6 @@
 /depot_tools
 /.vs
 /.vscode
+*.user
+*.DS_Store
+.cipd/
