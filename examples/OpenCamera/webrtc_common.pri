@@ -72,6 +72,10 @@ macos {
             -framework Foundation \
             -framework AppKit
 
+    INCLUDEPATH += \
+        $$PWD/../../webrtc/src/sdk/objc/base \
+        $$PWD/../../webrtc/src/sdk/objc
+
     CONFIG(debug, debug|release) {
         DESTDIR = $$PWD/../../exampleout/mac64/debug/opencamera
     } else {

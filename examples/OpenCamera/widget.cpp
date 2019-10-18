@@ -59,7 +59,8 @@ void Widget::OpenVideoCaptureDevice()
     const size_t kWidth = 640;
     const size_t kHeight = 480;
     const size_t kFps = 30;
-    const size_t kDeviceIndex = ui->deviceComBox->currentIndex();
+    //const size_t kDeviceIndex = ui->deviceComBox->currentIndex();
+    const size_t kDeviceIndex = 0;
 
     video_capturer_ = webrtc::test::CreateVideoCapturer(kWidth, kHeight, kFps, kDeviceIndex);
     if (video_capturer_) {
