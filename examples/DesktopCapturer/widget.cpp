@@ -57,7 +57,7 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
     qDebug() << "result: " << (int)result;
     if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
         qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();
-        QImage tempImage = QImage(frame->data(), frame->size().width(), frame->size().height(),
+        QImage tempImage = QImage(frame->data(), frame->size().width(), frame->size().height(), frame->stride(),
                                      QImage::Format_ARGB32);
         // cpu占用高，缩放和渲染都在cpu中，可以通过opengl渲染优化掉
         ui->imageLabel->setPixmap(QPixmap::fromImage(tempImage.scaled(ui->imageLabel->width(), ui->imageLabel->height())));
