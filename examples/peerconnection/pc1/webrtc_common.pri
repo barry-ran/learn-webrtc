@@ -74,6 +74,10 @@ macos {
             -framework CoreMedia \
             -framework CoreVideo
 
+    INCLUDEPATH += \
+        $$PWD/../../../webrtc/src/sdk/objc/base \
+        $$PWD/../../../webrtc/src/sdk/objc
+
     CONFIG(debug, debug|release) {
         DESTDIR = $$PWD/../../../exampleout/mac64/debug/desktopcapturer
     } else {

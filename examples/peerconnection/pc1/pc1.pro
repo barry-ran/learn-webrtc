@@ -65,16 +65,16 @@ macos {
 
     CONFIG(debug, debug|release) {
         LIBS += \
-            -L$$PWD/../../out/debug/obj/sdk -lvideocapture_objc \
-            -L$$PWD/../../out/debug/obj/sdk -lvideoframebuffer_objc \
-            -L$$PWD/../../out/debug/obj/sdk -lbase_objc \
-            -L$$PWD/../../out/debug/obj/sdk -lnative_video
+            -L$$PWD/../../../out/debug/obj/sdk -lvideocapture_objc \
+            -L$$PWD/../../../out/debug/obj/sdk -lvideoframebuffer_objc \
+            -L$$PWD/../../../out/debug/obj/sdk -lbase_objc \
+            -L$$PWD/../../../out/debug/obj/sdk -lnative_video
     } else {
         LIBS += \
-            -L$$PWD/../../out/release/obj/sdk -lvideocapture_objc \
-            -L$$PWD/../../out/release/obj/sdk -lvideoframebuffer_objc \
-            -L$$PWD/../../out/release/obj/sdk -lbase_objc \
-            -L$$PWD/../../out/release/obj/sdk -lnative_video
+            -L$$PWD/../../../out/release/obj/sdk -lvideocapture_objc \
+            -L$$PWD/../../../out/release/obj/sdk -lvideoframebuffer_objc \
+            -L$$PWD/../../../out/release/obj/sdk -lbase_objc \
+            -L$$PWD/../../../out/release/obj/sdk -lnative_video
     }
 }
 
