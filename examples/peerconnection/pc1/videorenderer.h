@@ -2,7 +2,7 @@
 #define VIDEORENDERER_H
 
 #include <QLabel>
-#include "api/mediastreaminterface.h"
+#include "api/media_stream_interface.h"
 
 class VideoRenderer : public rtc::VideoSinkInterface<webrtc::VideoFrame>
 {

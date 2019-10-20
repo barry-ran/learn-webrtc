@@ -48,4 +48,33 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 include($$PWD/webrtc_common.pri)
+include($$PWD/test/test.pri)
+
+INCLUDEPATH += $$PWD/test
+
+win32 {
+    LIBS += Ole32.lib OleAut32.lib User32.lib
+}
+
+macos {
+    LIBS += -framework CoreMedia \
+            -framework AVFoundation \
+            -framework CoreVideo
+
+    QMAKE_INFO_PLIST = $$PWD/Info.plist
+
+    CONFIG(debug, debug|release) {
+        LIBS += \
+            -L$$PWD/../../out/debug/obj/sdk -lvideocapture_objc \
+            -L$$PWD/../../out/debug/obj/sdk -lvideoframebuffer_objc \
+            -L$$PWD/../../out/debug/obj/sdk -lbase_objc \
+            -L$$PWD/../../out/debug/obj/sdk -lnative_video
+    } else {
+        LIBS += \
+            -L$$PWD/../../out/release/obj/sdk -lvideocapture_objc \
+            -L$$PWD/../../out/release/obj/sdk -lvideoframebuffer_objc \
+            -L$$PWD/../../out/release/obj/sdk -lbase_objc \
+            -L$$PWD/../../out/release/obj/sdk -lnative_video
+    }
+}
 

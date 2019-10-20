@@ -4,7 +4,7 @@
 #include <QObject>
 
 #include "api/create_peerconnection_factory.h"
-#include "api/mediastreaminterface.h"
+#include "api/media_stream_interface.h"
 
 class DummySetSessionDescriptionObserver
     : public webrtc::SetSessionDescriptionObserver {
@@ -46,8 +46,6 @@ public Q_SLOTS:
     void SetIceCandidate(const webrtc::IceCandidateInterface *candidate);
 
 protected:
-    std::unique_ptr<cricket::VideoCapturer> OpenVideoCaptureDevice();
-
 
 protected:
     //

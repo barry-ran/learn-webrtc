@@ -4,11 +4,14 @@
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 #include "api/video_codecs/builtin_video_decoder_factory.h"
 #include "api/video_codecs/builtin_video_encoder_factory.h"
-#include "media/engine/webrtcvideocapturerfactory.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/audio_processing/include/audio_processing.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "rtc_base/checks.h"
+#include "pc/video_track_source.h"
+#include "test_video_capturer.h"
+#include "platform_video_capturer.h"
+
 
 const char kAudioLabel[] = "audio_label";
 const char kVideoLabel[] = "video_label";
@@ -18,6 +21,35 @@ std::unique_ptr<rtc::Thread> SimplePeerConnection::s_worker_thread;
 std::unique_ptr<rtc::Thread> SimplePeerConnection::s_signaling_thread;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>
                                     SimplePeerConnection::s_peer_connection_factory;
+
+class CapturerTrackSource : public webrtc::VideoTrackSource {
+ public:
+  static rtc::scoped_refptr<CapturerTrackSource> Create() {
+    const size_t kWidth = 640;
+    const size_t kHeight = 480;
+    const size_t kFps = 30;
+    const size_t kDeviceIndex = 0;
+    std::unique_ptr<webrtc::test::TestVideoCapturer> capturer;
+
+    capturer = webrtc::test::CreateVideoCapturer(kWidth, kHeight, kFps, kDeviceIndex);
+    if (capturer) {
+      return new rtc::RefCountedObject<CapturerTrackSource>(std::move(capturer));
+    }
+
+    return nullptr;
+  }
+
+ protected:
+  explicit CapturerTrackSource(
+      std::unique_ptr<webrtc::test::TestVideoCapturer> capturer)
+      : VideoTrackSource(/*remote=*/false), capturer_(std::move(capturer)) {}
+
+ private:
+  rtc::VideoSourceInterface<webrtc::VideoFrame>* source() override {
+    return capturer_.get();
+  }
+  std::unique_ptr<webrtc::test::TestVideoCapturer> capturer_;
+};
 
 SimplePeerConnection::SimplePeerConnection(QObject* parent)
     : QObject(parent)
@@ -33,13 +65,14 @@ SimplePeerConnection::~SimplePeerConnection()
 bool SimplePeerConnection::InitPeerConnectionFactory()
 {
     if (s_peer_connection_factory == nullptr) {
-        s_worker_thread.reset(new rtc::Thread());
+        s_worker_thread = rtc::Thread::Create();
         s_worker_thread->Start();
-        s_signaling_thread.reset(new rtc::Thread());
+        s_signaling_thread = rtc::Thread::Create();
         s_signaling_thread->Start();
 
         s_peer_connection_factory = webrtc::CreatePeerConnectionFactory(
-            s_worker_thread.get(), s_worker_thread.get(), s_signaling_thread.get(),
+            //s_worker_thread.get(), s_worker_thread.get(), s_signaling_thread.get(),
+            nullptr,nullptr,nullptr,
             nullptr, webrtc::CreateBuiltinAudioEncoderFactory(),
                     webrtc::CreateBuiltinAudioDecoderFactory(),
                     webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -95,11 +128,11 @@ void SimplePeerConnection::CreateTracks()
     audio_track_ = s_peer_connection_factory->CreateAudioTrack(
                 kAudioLabel, s_peer_connection_factory->CreateAudioSource(cricket::AudioOptions()));
 
-    std::unique_ptr<cricket::VideoCapturer> video_device = OpenVideoCaptureDevice();
+    rtc::scoped_refptr<CapturerTrackSource> video_device =
+          CapturerTrackSource::Create();
+
     if (video_device) {
-        video_track_ = s_peer_connection_factory->CreateVideoTrack(
-                    kVideoLabel, s_peer_connection_factory->CreateVideoSource(
-                        std::move(video_device), nullptr));
+        video_track_ =s_peer_connection_factory->CreateVideoTrack(kVideoLabel, video_device);
         //main_wnd_->StartLocalRenderer(video_track_);
     } else {
       RTC_LOG(LS_ERROR) << "OpenVideoCaptureDevice failed";
@@ -142,35 +175,4 @@ void SimplePeerConnection::SetIceCandidate(const webrtc::IceCandidateInterface *
 {
     RTC_DCHECK(peer_connection_);
     peer_connection_->AddIceCandidate(candidate);
-}
-
-std::unique_ptr<cricket::VideoCapturer> SimplePeerConnection::OpenVideoCaptureDevice()
-{
-    std::vector<std::string> device_names;
-    {
-        std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> info(
-            webrtc::VideoCaptureFactory::CreateDeviceInfo());
-        if (!info) {
-          return nullptr;
-        }
-        int num_devices = info->NumberOfDevices();
-        for (int i = 0; i < num_devices; ++i) {
-          const uint32_t kSize = 256;
-          char name[kSize] = {0};
-          char id[kSize] = {0};
-          if (info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
-            device_names.push_back(name);
-          }
-        }
-    }
-
-    cricket::WebRtcVideoDeviceCapturerFactory factory;
-    std::unique_ptr<cricket::VideoCapturer> capturer;
-    for (const auto& name : device_names) {
-      capturer = factory.Create(cricket::Device(name, 0));
-      if (capturer) {
-        break;
-      }
-    }
-    return capturer;
 }

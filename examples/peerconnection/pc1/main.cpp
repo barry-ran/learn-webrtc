@@ -2,14 +2,15 @@
 #include <QApplication>
 
 #ifdef Q_OS_WIN
-#include "rtc_base/win32socketinit.h"
-#include "rtc_base/win32socketserver.h"
+#include "rtc_base/win32_socket_init.h"
+#include "rtc_base/win32_socket_server.h"
 #endif
 
 #include "simplepeerconnection.h"
 
 int main(int argc, char *argv[])
 {
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #ifdef Q_OS_WIN
     rtc::WinsockInitializer winsock_init;
     rtc::Win32SocketServer w32_ss;
