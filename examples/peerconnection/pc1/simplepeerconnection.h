@@ -79,6 +79,7 @@ protected:
     rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_;
 
     static std::unique_ptr<rtc::Thread> s_worker_thread;
+    static std::unique_ptr<rtc::Thread> s_network_thread;
     static std::unique_ptr<rtc::Thread> s_signaling_thread;
     static rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>
                                         s_peer_connection_factory;

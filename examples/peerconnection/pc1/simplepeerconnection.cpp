@@ -18,6 +18,7 @@ const char kVideoLabel[] = "video_label";
 const char kStreamId[] = "stream_id";
 
 std::unique_ptr<rtc::Thread> SimplePeerConnection::s_worker_thread;
+std::unique_ptr<rtc::Thread> SimplePeerConnection::s_network_thread;
 std::unique_ptr<rtc::Thread> SimplePeerConnection::s_signaling_thread;
 rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>
                                     SimplePeerConnection::s_peer_connection_factory;
@@ -65,14 +66,18 @@ SimplePeerConnection::~SimplePeerConnection()
 bool SimplePeerConnection::InitPeerConnectionFactory()
 {
     if (s_peer_connection_factory == nullptr) {
+        s_network_thread = rtc::Thread::CreateWithSocketServer();
+        s_network_thread->Start();
         s_worker_thread = rtc::Thread::Create();
         s_worker_thread->Start();
         s_signaling_thread = rtc::Thread::Create();
         s_signaling_thread->Start();
-
+        // 1. signal thread 不能是rtc::Thread::Current()为啥？
+        // 2. 三种线程的作用和区别
         s_peer_connection_factory = webrtc::CreatePeerConnectionFactory(
-            //s_worker_thread.get(), s_worker_thread.get(), s_signaling_thread.get(),
-            nullptr,nullptr,nullptr,
+            s_network_thread.get(), s_worker_thread.get(), s_signaling_thread.get(),
+            // this is ok too
+            //nullptr,nullptr, s_signaling_thread.get(),
             nullptr, webrtc::CreateBuiltinAudioEncoderFactory(),
                     webrtc::CreateBuiltinAudioDecoderFactory(),
                     webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -87,6 +92,7 @@ void SimplePeerConnection::ClearPeerConnectionFactory()
     s_peer_connection_factory = nullptr;
     s_signaling_thread.reset();
     s_worker_thread.reset();
+    s_network_thread.reset();
 }
 
 webrtc::VideoTrackInterface *SimplePeerConnection::GetVideoTrack()
