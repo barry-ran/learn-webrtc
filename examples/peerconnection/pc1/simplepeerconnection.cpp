@@ -74,10 +74,13 @@ bool SimplePeerConnection::InitPeerConnectionFactory()
         s_signaling_thread->Start();
         // 1. signal thread 不能是rtc::Thread::Current()为啥？
         // 2. 三种线程的作用和区别
+
         s_peer_connection_factory = webrtc::CreatePeerConnectionFactory(
-            s_network_thread.get(), s_worker_thread.get(), s_signaling_thread.get(),
-            // this is ok too
-            //nullptr,nullptr, s_signaling_thread.get(),
+#if defined(Q_OS_MAC)
+                    s_network_thread.get(), s_worker_thread.get(), s_signaling_thread.get(),
+#elif defined(Q_OS_WIN)
+                    nullptr, nullptr, nullptr,
+#endif
             nullptr, webrtc::CreateBuiltinAudioEncoderFactory(),
                     webrtc::CreateBuiltinAudioDecoderFactory(),
                     webrtc::CreateBuiltinVideoEncoderFactory(),
