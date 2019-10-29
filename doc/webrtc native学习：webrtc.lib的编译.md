@@ -73,4 +73,4 @@
 - 有的符号webrtc.lib没有包含，其他导出的lib库都没有包含，例如原gn项目依赖了test中的项目，test没有导出来
 需要我们自己把相关的实现文件复制出来添加到现有工程中
 
-例如webrtc\src\rtc_base\strings\json.cpp中GetStringFromJson相关实现
+例如webrtc\src\rtc_base\strings\json.cc中GetStringFromJson相关实现
