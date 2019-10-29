@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
-    MainWnd wnd(FLAG_server, FLAG_port, FLAG_autoconnect, FLAG_autocall);
+    MainWnd wnd(FLAG_server, FLAG_port);
     if (!wnd.Create()) {
         RTC_NOTREACHED();
         return -1;

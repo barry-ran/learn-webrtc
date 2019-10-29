@@ -73,7 +73,7 @@ class MainWnd : public QWidget, public MainWindow
     Q_OBJECT
 
 public:
-    MainWnd(const char* server, int port, bool auto_connect, bool auto_call, QWidget *parent = nullptr);
+    MainWnd(const char* server, int port, QWidget *parent = nullptr);
     ~MainWnd();
 
     bool Create();
@@ -95,6 +95,8 @@ public:
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
 
 private Q_SLOTS:
     void on_connectBtn_clicked();

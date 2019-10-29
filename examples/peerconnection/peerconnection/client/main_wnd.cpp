@@ -1,13 +1,12 @@
 #include <QDebug>
 #include <QMessageBox>
+#include <QKeyEvent>
 
 #include "main_wnd.h"
 #include "ui_mainwnd.h"
 
 MainWnd::MainWnd(const char* server,
-                 int port,
-                 bool auto_connect,
-                 bool auto_call,
+                 int port,                 
                  QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWnd)
@@ -40,7 +39,7 @@ MainWnd::MainWnd(const char* server,
 }
 
 MainWnd::~MainWnd()
-{
+{    
     delete ui;
 }
 
@@ -134,6 +133,30 @@ void MainWnd::resizeEvent(QResizeEvent *event)
 {
     localVideoLabel_->move(width() - localVideoLabel_->width(),
                            height() - localVideoLabel_->height());
+}
+
+void MainWnd::closeEvent(QCloseEvent *event)
+{
+    if (callback_) {
+        if (ui_ == STREAMING) {
+            callback_->DisconnectFromCurrentPeer();
+        } else if (ui_ == LIST_PEERS){
+            callback_->DisconnectFromServer();
+        }
+    }
+}
+
+void MainWnd::keyPressEvent(QKeyEvent *event)
+{
+    if (Qt::Key_Escape == event->key()) {
+        if (callback_) {
+            if (ui_ == STREAMING) {
+                callback_->DisconnectFromCurrentPeer();
+            } else if (ui_ == LIST_PEERS){
+                callback_->DisconnectFromServer();
+            }
+        }
+    }
 }
 
 void MainWnd::MessageBox(const char *caption, const char *text, bool is_error)
