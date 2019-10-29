@@ -51,7 +51,8 @@ Widget::~Widget()
 }
 
 void Widget::StartLocalRenderer(webrtc::VideoTrackInterface* local_video) {
-    local_renderer_.reset(new VideoRenderer(local_video, ui->localLabel));
+    local_renderer_.reset(new VideoRenderer(local_video));
+    connect(local_renderer_.get(), &VideoRenderer::updateImage, this, &Widget::OnUpdateLocalImage, Qt::QueuedConnection);
 }
 
 void Widget::StopLocalRenderer() {
@@ -60,7 +61,8 @@ void Widget::StopLocalRenderer() {
 
 void Widget::StartRemoteRenderer(webrtc::VideoTrackInterface *remote_video)
 {
-    remote_renderer_.reset(new VideoRenderer(remote_video, ui->remoteLabel));
+    remote_renderer_.reset(new VideoRenderer(remote_video));
+    connect(remote_renderer_.get(), &VideoRenderer::updateImage, this, &Widget::OnUpdateRemoteImage, Qt::QueuedConnection);
 }
 
 void Widget::StopRemoteRenderer()
@@ -122,4 +124,14 @@ void Widget::on_hangUpBtn_clicked()
 
     ui->callBtn->setEnabled(true);
     ui->hangUpBtn->setEnabled(false);
+}
+
+void Widget::OnUpdateRemoteImage(QImage image)
+{
+    ui->remoteLabel->setPixmap(QPixmap::fromImage(image.scaled(ui->remoteLabel->width(), ui->remoteLabel->height())));
+}
+
+void Widget::OnUpdateLocalImage(QImage image)
+{
+    ui->localLabel->setPixmap(QPixmap::fromImage(image.scaled(ui->localLabel->width(), ui->localLabel->height())));
 }

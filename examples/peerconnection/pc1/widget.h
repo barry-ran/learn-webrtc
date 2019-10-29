@@ -33,6 +33,8 @@ private Q_SLOTS:
     void on_callBtn_clicked();
 
     void on_hangUpBtn_clicked();
+    void OnUpdateRemoteImage(QImage image);
+    void OnUpdateLocalImage(QImage image);
 
 private:
     Ui::Widget *ui;
