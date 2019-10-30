@@ -10,6 +10,9 @@
 
 #include "conductor.h"
 
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include <stddef.h>
 #include <stdint.h>
 #include <memory>
@@ -41,8 +44,7 @@
 #include "rtc_base/logging.h"
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/rtc_certificate_generator.h"
-#include "rtc_base/strings/json.h"
-#include "vcm_capturer.h"
+#include "platform_video_capturer.h"
 
 namespace {
 // Names used for a IceCandidate JSON object.
@@ -73,20 +75,12 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
     const size_t kWidth = 640;
     const size_t kHeight = 480;
     const size_t kFps = 30;
-    std::unique_ptr<webrtc::test::VcmCapturer> capturer;
-    std::unique_ptr<webrtc::VideoCaptureModule::DeviceInfo> info(
-        webrtc::VideoCaptureFactory::CreateDeviceInfo());
-    if (!info) {
-      return nullptr;
-    }
-    int num_devices = info->NumberOfDevices();
-    for (int i = 0; i < num_devices; ++i) {
-      capturer = absl::WrapUnique(
-          webrtc::test::VcmCapturer::Create(kWidth, kHeight, kFps, i));
-      if (capturer) {
-        return new
-            rtc::RefCountedObject<CapturerTrackSource>(std::move(capturer));
-      }
+    const size_t kDeviceIndex = 0;
+    std::unique_ptr<webrtc::test::TestVideoCapturer> capturer;
+
+    capturer = webrtc::test::CreateVideoCapturer(kWidth, kHeight, kFps, kDeviceIndex);
+    if (capturer) {
+        return new rtc::RefCountedObject<CapturerTrackSource>(std::move(capturer));
     }
 
     return nullptr;
@@ -94,14 +88,14 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
 
  protected:
   explicit CapturerTrackSource(
-      std::unique_ptr<webrtc::test::VcmCapturer> capturer)
+      std::unique_ptr<webrtc::test::TestVideoCapturer> capturer)
       : VideoTrackSource(/*remote=*/false), capturer_(std::move(capturer)) {}
 
  private:
   rtc::VideoSourceInterface<webrtc::VideoFrame>* source() override {
     return capturer_.get();
   }
-  std::unique_ptr<webrtc::test::VcmCapturer> capturer_;
+  std::unique_ptr<webrtc::test::TestVideoCapturer> capturer_;
 };
 
 }  // namespace
@@ -128,10 +122,22 @@ void Conductor::Close() {
 bool Conductor::InitializePeerConnection() {
   RTC_DCHECK(!peer_connection_factory_);
   RTC_DCHECK(!peer_connection_);
+#if defined(Q_OS_MAC)
+  network_thread_ = rtc::Thread::CreateWithSocketServer();
+  network_thread_->Start();
+  worker_thread_ = rtc::Thread::Create();
+  worker_thread_->Start();
+  signaling_thread_ = rtc::Thread::Create();
+  signaling_thread_->Start();
+#endif
 
   peer_connection_factory_ = webrtc::CreatePeerConnectionFactory(
-      nullptr /* network_thread */, nullptr /* worker_thread */,
-      nullptr /* signaling_thread */, nullptr /* default_adm */,
+#if defined(Q_OS_MAC)
+              network_thread_.get(), worker_thread_.get(), signaling_thread_.get(),
+#elif defined(Q_OS_WIN)
+              nullptr, nullptr, nullptr,
+#endif
+              nullptr /* default_adm */,
       webrtc::CreateBuiltinAudioEncoderFactory(),
       webrtc::CreateBuiltinAudioDecoderFactory(),
       webrtc::CreateBuiltinVideoEncoderFactory(),
@@ -232,18 +238,20 @@ void Conductor::OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
     return;
   }
 
-  Json::StyledWriter writer;
-  Json::Value jmessage;
+  QJsonObject jsonObject;
+  jsonObject.insert(kCandidateSdpMidName, candidate->sdp_mid().c_str());
+  jsonObject.insert(kCandidateSdpMlineIndexName, candidate->sdp_mline_index());
 
-  jmessage[kCandidateSdpMidName] = candidate->sdp_mid();
-  jmessage[kCandidateSdpMlineIndexName] = candidate->sdp_mline_index();
   std::string sdp;
   if (!candidate->ToString(&sdp)) {
     RTC_LOG(LS_ERROR) << "Failed to serialize candidate";
     return;
   }
-  jmessage[kCandidateSdpName] = sdp;
-  SendMessage(writer.write(jmessage));
+  jsonObject.insert(kCandidateSdpName, sdp.c_str());
+
+  QJsonDocument jsonDoc;
+  jsonDoc.setObject(jsonObject);
+  SendMessage(jsonDoc.toJson().data());
 }
 
 //
@@ -304,17 +312,26 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
     return;
   }
 
-  Json::Reader reader;
-  Json::Value jmessage;
-  if (!reader.parse(message, jmessage)) {
-    RTC_LOG(WARNING) << "Received unknown message. " << message;
-    return;
+  QJsonParseError json_error;
+  QJsonDocument parse_doucment = QJsonDocument::fromJson(message.c_str(), &json_error);
+  if(json_error.error != QJsonParseError::NoError) {
+      RTC_LOG(WARNING) << "Received unknown message. " << message;
+      return;
   }
+
   std::string type_str;
   std::string json_object;
 
-  rtc::GetStringFromJsonObject(jmessage, kSessionDescriptionTypeName,
-                               &type_str);
+  if (parse_doucment.isObject()) {
+      QJsonObject obj = parse_doucment.object();
+      if(obj.contains(kSessionDescriptionTypeName))  {
+          QJsonValue name_value = obj.take(kSessionDescriptionTypeName);
+          if(name_value.isString()) {
+              type_str = name_value.toString().toStdString();
+          }
+      }
+  }
+
   if (!type_str.empty()) {
     if (type_str == "offer-loopback") {
       // This is a loopback call.
@@ -334,11 +351,20 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
     }
     webrtc::SdpType type = *type_maybe;
     std::string sdp;
-    if (!rtc::GetStringFromJsonObject(jmessage, kSessionDescriptionSdpName,
-                                      &sdp)) {
-      RTC_LOG(WARNING) << "Can't parse received session description message.";
-      return;
+    if (parse_doucment.isObject()) {
+        QJsonObject obj = parse_doucment.object();
+        if(obj.contains(kSessionDescriptionSdpName))  {
+            QJsonValue name_value = obj.take(kSessionDescriptionSdpName);
+            if(name_value.isString()) {
+                sdp = name_value.toString().toStdString();
+            }
+        }
     }
+    if (sdp.empty()) {
+        RTC_LOG(WARNING) << "Can't parse received session description message.";
+        return;
+    }
+
     webrtc::SdpParseError error;
     std::unique_ptr<webrtc::SessionDescriptionInterface> session_description =
         webrtc::CreateSessionDescription(type, sdp, &error);
@@ -359,11 +385,34 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
     std::string sdp_mid;
     int sdp_mlineindex = 0;
     std::string sdp;
-    if (!rtc::GetStringFromJsonObject(jmessage, kCandidateSdpMidName,
-                                      &sdp_mid) ||
-        !rtc::GetIntFromJsonObject(jmessage, kCandidateSdpMlineIndexName,
-                                   &sdp_mlineindex) ||
-        !rtc::GetStringFromJsonObject(jmessage, kCandidateSdpName, &sdp)) {
+    if (parse_doucment.isObject()) {
+        QJsonObject obj = parse_doucment.object();
+        if(obj.contains(kCandidateSdpMidName))  {
+            QJsonValue name_value = obj.take(kCandidateSdpMidName);
+            if(name_value.isString()) {
+                sdp_mid = name_value.toString().toStdString();
+            }
+        }
+    }
+    if (parse_doucment.isObject()) {
+        QJsonObject obj = parse_doucment.object();
+        if(obj.contains(kCandidateSdpMlineIndexName))  {
+            QJsonValue name_value = obj.take(kCandidateSdpMlineIndexName);
+            if(name_value.isDouble()) {
+                sdp_mlineindex = name_value.toInt();
+            }
+        }
+    }
+    if (parse_doucment.isObject()) {
+        QJsonObject obj = parse_doucment.object();
+        if(obj.contains(kCandidateSdpName))  {
+            QJsonValue name_value = obj.take(kCandidateSdpName);
+            if(name_value.isString()) {
+                sdp = name_value.toString().toStdString();
+            }
+        }
+    }
+    if (sdp_mid.empty() || sdp.empty() || 0 == sdp_mlineindex) {
       RTC_LOG(WARNING) << "Can't parse received message.";
       return;
     }
@@ -385,7 +434,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
 
 void Conductor::OnMessageSent(int err) {
   // Process the next pending message if any.
-  main_wnd_->QueueUIThreadCallback(SEND_MESSAGE_TO_PEER, NULL);
+  main_wnd_->QueueUIThreadCallback(SEND_MESSAGE_TO_PEER, nullptr);
 }
 
 void Conductor::OnServerConnectionFailure() {
@@ -558,12 +607,13 @@ void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
     return;
   }
 
-  Json::StyledWriter writer;
-  Json::Value jmessage;
-  jmessage[kSessionDescriptionTypeName] =
-      webrtc::SdpTypeToString(desc->GetType());
-  jmessage[kSessionDescriptionSdpName] = sdp;
-  SendMessage(writer.write(jmessage));
+  QJsonObject jsonObject;
+  jsonObject.insert(kSessionDescriptionTypeName, webrtc::SdpTypeToString(desc->GetType()));
+  jsonObject.insert(kSessionDescriptionSdpName, sdp.c_str());
+
+  QJsonDocument jsonDoc;
+  jsonDoc.setObject(jsonObject);
+  SendMessage(jsonDoc.toJson().data());
 }
 
 void Conductor::OnFailure(webrtc::RTCError error) {

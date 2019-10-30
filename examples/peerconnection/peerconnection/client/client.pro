@@ -21,7 +21,6 @@ SOURCES += \
     defaults.cc \
     peer_connection_client.cc \
     conductor.cc \
-    json.cc \
     videorenderer.cpp
 
 HEADERS += \
@@ -47,17 +46,6 @@ INCLUDEPATH += $$PWD/test
 
 win32 {
     LIBS += Ole32.lib OleAut32.lib User32.lib Ws2_32.lib
-
-    CONFIG(debug, debug|release) {
-        LIBS += \
-            -L$$PWD -ljson_vc71_libmdd
-    } else {
-        LIBS += \
-            -L$$PWD -ljson_vc71_libmd
-    }
-
-    INCLUDEPATH += \
-                $$PWD/../../../../webrtc/src/third_party/jsoncpp/source/include
 }
 
 macos {

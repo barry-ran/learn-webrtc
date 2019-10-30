@@ -125,6 +125,9 @@ class Conductor : public webrtc::PeerConnectionObserver,
   rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_;
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>
       peer_connection_factory_;
+  std::unique_ptr<rtc::Thread> worker_thread_;
+  std::unique_ptr<rtc::Thread> network_thread_;
+  std::unique_ptr<rtc::Thread> signaling_thread_;
   PeerConnectionClient* client_;
   MainWindow* main_wnd_;
   std::deque<std::string*> pending_messages_;
