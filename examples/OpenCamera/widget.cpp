@@ -18,6 +18,8 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     ui->stopBtn->setEnabled(false);
     on_updateDeviceBtn_clicked();
+
+    connect(this, &Widget::recvFrame, this, &Widget::onRecvFrame, Qt::QueuedConnection);
 }
 
 Widget::~Widget()
@@ -35,13 +37,11 @@ void Widget::OnFrame(const webrtc::VideoFrame &frame)
         buffer = webrtc::I420Buffer::Rotate(*buffer, frame.rotation());
     }
 
-    // 这段代码最浪费cpu，正式项目中可以使用opengl渲染优化掉
-    QImage image(buffer->width(), buffer->height(), QImage::Format_ARGB32);
-    libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),
-                       buffer->StrideU(), buffer->DataV(), buffer->StrideV(),
-                       image.bits(), buffer->width() * 32 / 8,
-                       buffer->width(), buffer->height());
-    ui->videoLabel->setPixmap(QPixmap::fromImage(image.scaled(ui->videoLabel->width(), ui->videoLabel->height())));
+    QMutexLocker locker(&m_mutex);
+    Q_EMIT recvFrame(buffer->width(), buffer->height(),
+                     buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                     buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+    m_recvDataCond.wait(&m_mutex);
 }
 
 void Widget::on_startBtn_clicked()
@@ -103,4 +103,12 @@ void Widget::on_updateDeviceBtn_clicked()
             ui->deviceComBox->addItem(name);            
         }
     }
+}
+
+void Widget::onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV)
+{
+    QMutexLocker locker(&m_mutex);
+    ui->videoWidget->setFrameSize(QSize(width, height));
+    ui->videoWidget->updateTextures(dataY, dataU, dataV, linesizeY, linesizeU, linesizeV);
+    m_recvDataCond.wakeOne();
 }
