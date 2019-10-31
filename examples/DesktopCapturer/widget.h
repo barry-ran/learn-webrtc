@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "modules/desktop_capture/desktop_capturer.h"
+#include <api/video/i420_buffer.h>
 
 namespace Ui {
 class Widget;
@@ -25,6 +26,9 @@ public:
     void OnCaptureResult(webrtc::DesktopCapturer::Result result,
                          std::unique_ptr<webrtc::DesktopFrame> frame) override;
 
+Q_SIGNALS:
+    void recvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV);
+
 private Q_SLOTS:
     void on_getWindowsBtn_clicked();
 
@@ -34,6 +38,9 @@ private Q_SLOTS:
 
     void on_sourceListComBox_currentIndexChanged(int index);
 
+    void onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV);
+
+
 private:
     Ui::Widget *ui;
 
@@ -41,6 +48,8 @@ private:
     std::unique_ptr<webrtc::DesktopCapturer> screen_capturer_;
     webrtc::DesktopCapturer::SourceId source_ = -1;
     QTimer* timer_ = new QTimer(this);
+
+    rtc::scoped_refptr<webrtc::I420Buffer> i420_buffer_;
 };
 
 #endif // WIDGET_H

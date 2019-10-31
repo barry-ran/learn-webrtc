@@ -21,22 +21,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="imageLabel">
+    <widget class="QYUVOpenGLWidget" name="videoWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(0, 0, 0);
-color: rgb(255, 255, 255);</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="text">
-      <string>显示区域</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <string notr="true">background-color: rgb(0, 0, 0);</string>
      </property>
     </widget>
    </item>
@@ -115,6 +102,14 @@ color: rgb(255, 255, 255);</string>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QYUVOpenGLWidget</class>
+   <extends>QWidget</extends>
+   <header>qyuvopenglwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -40,6 +40,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 include($$PWD/webrtc_common.pri)
+include($$PWD/render/render.pri)
+
+INCLUDEPATH += \
+            $$PWD/render
 
 macos {
     QMAKE_INFO_PLIST = $$PWD/Info.plist

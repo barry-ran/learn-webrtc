@@ -6,6 +6,7 @@
 
 #include "modules/desktop_capture/desktop_capture_options.h"
 #include "rtc_base/checks.h"
+#include <third_party/libyuv/include/libyuv.h>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -44,6 +45,8 @@ Widget::Widget(QWidget *parent) :
             screen_capturer_->CaptureFrame();
         }
     });
+
+    connect(this, &Widget::recvFrame, this, &Widget::onRecvFrame, Qt::QueuedConnection);
 }
 
 Widget::~Widget()
@@ -55,13 +58,27 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
 {
     // step.3 处理回调视频帧
     qDebug() << "result: " << (int)result;
-    if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
-        qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();
-        QImage tempImage = QImage(frame->data(), frame->size().width(), frame->size().height(), frame->stride(),
-                                     QImage::Format_ARGB32);
-        // cpu占用高，缩放和渲染都在cpu中，可以通过opengl渲染优化掉
-        ui->imageLabel->setPixmap(QPixmap::fromImage(tempImage.scaled(ui->imageLabel->width(), ui->imageLabel->height())));
-        
+
+    if (webrtc::DesktopCapturer::Result::SUCCESS == result) {        
+        int width = frame->size().width();
+        int height = frame->size().height();
+
+        if (!i420_buffer_.get() ||
+                i420_buffer_->width() * i420_buffer_->height() != width * height) {
+            i420_buffer_ = webrtc::I420Buffer::Create(width, height);
+        }
+
+        libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
+                                i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
+                                i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
+                                i420_buffer_->StrideV(), 0, 0, width, height, width,
+                                height, libyuv::kRotate0, libyuv::FOURCC_ARGB);
+
+        qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();        
+                
+        Q_EMIT recvFrame(i420_buffer_->width(), i420_buffer_->height(),
+                         i420_buffer_->DataY(), i420_buffer_->DataU(), i420_buffer_->DataV(),
+                         i420_buffer_->StrideY(), i420_buffer_->StrideU(), i420_buffer_->StrideV());
 #if 0
         // save rgba
         QFile file("test.rgba");
@@ -127,4 +144,10 @@ void Widget::on_sourceListComBox_currentIndexChanged(int index)
         RTC_DCHECK(screen_capturer_);
         screen_capturer_->SelectSource(source_);
     }
+}
+
+void Widget::onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV)
+{
+    ui->videoWidget->setFrameSize(QSize(width, height));
+    ui->videoWidget->updateTextures(dataY, dataU, dataV, linesizeY, linesizeU, linesizeV);
 }
