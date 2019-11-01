@@ -18,30 +18,16 @@
     <widget class="QWidget" name="videoWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="localLabel">
+       <widget class="QYUVOpenGLWidget" name="localVideoWidget" native="true">
         <property name="styleSheet">
-         <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(0, 0, 0);</string>
-        </property>
-        <property name="text">
-         <string>本地视频</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <string notr="true">background-color: rgb(0, 0, 0);</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="remoteLabel">
+       <widget class="QYUVOpenGLWidget" name="remoteVideoWidget" native="true">
         <property name="styleSheet">
-         <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(0, 0, 0);</string>
-        </property>
-        <property name="text">
-         <string>远程视频</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <string notr="true">background-color: rgb(0, 0, 0);</string>
         </property>
        </widget>
       </item>
@@ -122,6 +108,14 @@ background-color: rgb(0, 0, 0);</string>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QYUVOpenGLWidget</class>
+   <extends>QWidget</extends>
+   <header>qyuvopenglwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

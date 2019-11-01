@@ -1,4 +1,5 @@
 #include <QMessageBox>
+#include <QThread>
 
 #include "widget.h"
 #include "ui_widget.h"
@@ -41,6 +42,8 @@ Widget::Widget(QWidget *parent)
 
     ui->callBtn->setEnabled(false);
     ui->hangUpBtn->setEnabled(false);
+
+    qDebug() << ">>>>>>>>>>>>>>>>>>>" << QThread::currentThreadId();
 }
 
 Widget::~Widget()
@@ -52,7 +55,7 @@ Widget::~Widget()
 
 void Widget::StartLocalRenderer(webrtc::VideoTrackInterface* local_video) {
     local_renderer_.reset(new VideoRenderer(local_video));
-    connect(local_renderer_.get(), &VideoRenderer::updateImage, this, &Widget::OnUpdateLocalImage, Qt::QueuedConnection);
+    connect(local_renderer_.get(), &VideoRenderer::recvFrame, this, &Widget::onRecvLocalFrame, Qt::QueuedConnection);
 }
 
 void Widget::StopLocalRenderer() {
@@ -62,7 +65,7 @@ void Widget::StopLocalRenderer() {
 void Widget::StartRemoteRenderer(webrtc::VideoTrackInterface *remote_video)
 {
     remote_renderer_.reset(new VideoRenderer(remote_video));
-    connect(remote_renderer_.get(), &VideoRenderer::updateImage, this, &Widget::OnUpdateRemoteImage, Qt::QueuedConnection);
+    connect(remote_renderer_.get(), &VideoRenderer::recvFrame, this, &Widget::onRecvRemoteFrame, Qt::QueuedConnection);
 }
 
 void Widget::StopRemoteRenderer()
@@ -126,12 +129,32 @@ void Widget::on_hangUpBtn_clicked()
     ui->hangUpBtn->setEnabled(false);
 }
 
-void Widget::OnUpdateRemoteImage(QImage image)
+void Widget::onRecvLocalFrame()
 {
-    ui->remoteLabel->setPixmap(QPixmap::fromImage(image.scaled(ui->remoteLabel->width(), ui->remoteLabel->height())));
+    //VideoRenderer::TimeConsum tc(Q_FUNC_INFO);
+    VideoRenderer* local_renderer = local_renderer_.get();
+    if (local_renderer) {
+        VideoRenderer::AutoLock<VideoRenderer> local_lock(local_renderer);
+        webrtc::I420BufferInterface *buffer = local_renderer->getBuffer();
+        if (buffer) {
+            ui->localVideoWidget->setFrameSize(QSize(buffer->width(), buffer->height()));
+            ui->localVideoWidget->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                                 buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+        }
+    }
 }
 
-void Widget::OnUpdateLocalImage(QImage image)
+void Widget::onRecvRemoteFrame()
 {
-    ui->localLabel->setPixmap(QPixmap::fromImage(image.scaled(ui->localLabel->width(), ui->localLabel->height())));
+    //VideoRenderer::TimeConsum tc(Q_FUNC_INFO);
+    VideoRenderer* remote_renderer = remote_renderer_.get();
+    if (remote_renderer) {
+        VideoRenderer::AutoLock<VideoRenderer> remote_lock(remote_renderer);
+        webrtc::I420BufferInterface *buffer = remote_renderer->getBuffer();
+        if (buffer) {
+            ui->remoteVideoWidget->setFrameSize(QSize(buffer->width(), buffer->height()));
+            ui->remoteVideoWidget->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                                 buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+        }
+    }
 }
