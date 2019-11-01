@@ -68,6 +68,7 @@ class MainWindow {
   virtual void QueueUIThreadCallback(int msg_id, void* data) = 0;
 };
 
+class QYUVOpenGLWidget;
 class MainWnd : public QWidget, public MainWindow
 {
     Q_OBJECT
@@ -102,8 +103,8 @@ private Q_SLOTS:
     void on_connectBtn_clicked();
     void on_peersListView_doubleClicked(const QModelIndex &index);
     void OnUIThreadCallback(int msg_id, void* data);
-    void OnUpdateRemoteImage(QImage image);
-    void OnUpdateLocalImage(QImage image);
+    void OnUpdateRemoteImage();
+    void OnUpdateLocalImage();
 
 Q_SIGNALS:
     void EmitUIThreadCallback(int msg_id, void* data);
@@ -113,14 +114,12 @@ private:
 
     UI ui_;
     std::unique_ptr<VideoRenderer> local_renderer_;
-    std::unique_ptr<VideoRenderer> remote_renderer_;
-    //HWND wnd_;
-    //DWORD ui_thread_id_;
+    std::unique_ptr<VideoRenderer> remote_renderer_;    
     QStringListModel *peersModel_;
     bool destroyed_;
     MainWndCallback* callback_;
     std::string server_;
-    std::string port_;        
-    QLabel *localVideoLabel_ = nullptr;
+    std::string port_;
+    QYUVOpenGLWidget *remoteVideoWidget_ = nullptr;
 };
 #endif // MAINWND_H

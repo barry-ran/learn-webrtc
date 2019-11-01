@@ -6,7 +6,7 @@
 #include "ui_mainwnd.h"
 
 MainWnd::MainWnd(const char* server,
-                 int port,                 
+                 int port,
                  QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWnd)
@@ -24,18 +24,13 @@ MainWnd::MainWnd(const char* server,
     ui->peersListView->setModel(peersModel_);
     ui->peersListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    connect(this, &MainWnd::EmitUIThreadCallback, this, &MainWnd::OnUIThreadCallback, Qt::QueuedConnection);    
+    connect(this, &MainWnd::EmitUIThreadCallback, this, &MainWnd::OnUIThreadCallback, Qt::QueuedConnection);
 
-    localVideoLabel_ = new QLabel(this);
-    localVideoLabel_->setObjectName(QString::fromUtf8("localVideoLabel"));
-    localVideoLabel_->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);\n"
-"color: rgb(255, 255, 255);"));
-    localVideoLabel_->setAlignment(Qt::AlignCenter);
-    localVideoLabel_->setFixedSize(100, 100);
-
-    localVideoLabel_->move(width() - localVideoLabel_->width(),
-                           height() - localVideoLabel_->height());
-    localVideoLabel_->hide();
+    remoteVideoWidget_ = new QYUVOpenGLWidget(this);
+    remoteVideoWidget_->setObjectName(QString::fromUtf8("remoteVideoWidget"));
+    remoteVideoWidget_->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
+    remoteVideoWidget_->resize(100, 100);
+    remoteVideoWidget_->hide();
 }
 
 MainWnd::~MainWnd()
@@ -65,7 +60,7 @@ void MainWnd::SwitchToConnectUI()
     ui->connectWidget->show();
     ui->clientsWidget->hide();
     ui->videoWidget->hide();
-    localVideoLabel_->hide();
+    remoteVideoWidget_->hide();
     ui_ = CONNECT_TO_SERVER;
 }
 
@@ -74,7 +69,7 @@ void MainWnd::SwitchToPeerList(const Peers &peers)
     ui->connectWidget->hide();
     ui->clientsWidget->show();
     ui->videoWidget->hide();
-    localVideoLabel_->hide();
+    remoteVideoWidget_->hide();
 
     QStringList data;
     Peers::const_iterator i = peers.begin();
@@ -97,15 +92,15 @@ void MainWnd::SwitchToStreamingUI()
     ui->connectWidget->hide();
     ui->clientsWidget->hide();
     ui->videoWidget->show();
-    localVideoLabel_->show();
-    localVideoLabel_->raise();
+    remoteVideoWidget_->show();
+    remoteVideoWidget_->raise();
     ui_ = STREAMING;
 }
 
 void MainWnd::StartLocalRenderer(webrtc::VideoTrackInterface *local_video)
 {
     local_renderer_.reset(new VideoRenderer(local_video));
-    connect(local_renderer_.get(), &VideoRenderer::updateImage, this, &MainWnd::OnUpdateLocalImage, Qt::QueuedConnection);
+    connect(local_renderer_.get(), &VideoRenderer::recvFrame, this, &MainWnd::OnUpdateLocalImage, Qt::QueuedConnection);
 }
 
 void MainWnd::StopLocalRenderer()
@@ -116,7 +111,7 @@ void MainWnd::StopLocalRenderer()
 void MainWnd::StartRemoteRenderer(webrtc::VideoTrackInterface *remote_video)
 {
     remote_renderer_.reset(new VideoRenderer(remote_video));
-    connect(remote_renderer_.get(), &VideoRenderer::updateImage, this, &MainWnd::OnUpdateRemoteImage, Qt::QueuedConnection);
+    connect(remote_renderer_.get(), &VideoRenderer::recvFrame, this, &MainWnd::OnUpdateRemoteImage, Qt::QueuedConnection);
 }
 
 void MainWnd::StopRemoteRenderer()
@@ -131,8 +126,8 @@ void MainWnd::QueueUIThreadCallback(int msg_id, void *data)
 
 void MainWnd::resizeEvent(QResizeEvent *event)
 {
-    localVideoLabel_->move(width() - localVideoLabel_->width(),
-                           height() - localVideoLabel_->height());
+    remoteVideoWidget_->move(width() - remoteVideoWidget_->width(),
+                             height() - remoteVideoWidget_->height());
 }
 
 void MainWnd::closeEvent(QCloseEvent *event)
@@ -188,12 +183,33 @@ void MainWnd::OnUIThreadCallback(int msg_id, void *data)
     callback_->UIThreadCallback(msg_id, data);
 }
 
-void MainWnd::OnUpdateLocalImage(QImage image)
+void MainWnd::OnUpdateLocalImage()
 {
-    localVideoLabel_->setPixmap(QPixmap::fromImage(image.scaled(localVideoLabel_->width(), localVideoLabel_->height())));
+    //VideoRenderer::TimeConsum tc(Q_FUNC_INFO);
+    VideoRenderer* local_renderer = local_renderer_.get();
+    if (local_renderer) {
+        VideoRenderer::AutoLock<VideoRenderer> local_lock(local_renderer);
+        webrtc::I420BufferInterface *buffer = local_renderer->getBuffer();
+        if (buffer) {
+            remoteVideoWidget_->setFrameSize(QSize(buffer->width(), buffer->height()));
+            remoteVideoWidget_->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                               buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+        }
+    }
+    //localVideoLabel_->setPixmap(QPixmap::fromImage(image.scaled(localVideoLabel_->width(), localVideoLabel_->height())));
 }
 
-void MainWnd::OnUpdateRemoteImage(QImage image)
+void MainWnd::OnUpdateRemoteImage()
 {
-    ui->remoteVideoLabel->setPixmap(QPixmap::fromImage(image.scaled(ui->remoteVideoLabel->width(), ui->remoteVideoLabel->height())));
+    //VideoRenderer::TimeConsum tc(Q_FUNC_INFO);
+    VideoRenderer* remote_renderer = remote_renderer_.get();
+    if (remote_renderer) {
+        VideoRenderer::AutoLock<VideoRenderer> remote_lock(remote_renderer);
+        webrtc::I420BufferInterface *buffer = remote_renderer->getBuffer();
+        if (buffer) {
+            ui->remoteVideoWidget->setFrameSize(QSize(buffer->width(), buffer->height()));
+            ui->remoteVideoWidget->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                                  buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+        }
+    }
 }

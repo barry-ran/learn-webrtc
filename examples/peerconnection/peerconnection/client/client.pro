@@ -41,8 +41,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 include($$PWD/webrtc_common.pri)
 include($$PWD/test/test.pri)
+include($$PWD/render/render.pri)
 
-INCLUDEPATH += $$PWD/test
+INCLUDEPATH += \
+            $$PWD/test \
+            $$PWD/render
 
 win32 {
     LIBS += Ole32.lib OleAut32.lib User32.lib Ws2_32.lib

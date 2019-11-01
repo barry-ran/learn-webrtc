@@ -142,16 +142,9 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QLabel" name="remoteVideoLabel">
+       <widget class="QYUVOpenGLWidget" name="remoteVideoWidget" native="true">
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(0, 0, 0);
-color: rgb(255, 255, 255);</string>
-        </property>
-        <property name="text">
-         <string>显示视频</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <string notr="true">background-color: rgb(0, 0, 0);</string>
         </property>
        </widget>
       </item>
@@ -160,6 +153,14 @@ color: rgb(255, 255, 255);</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QYUVOpenGLWidget</class>
+   <extends>QWidget</extends>
+   <header>qyuvopenglwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
