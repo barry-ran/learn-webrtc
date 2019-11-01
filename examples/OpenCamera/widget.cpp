@@ -30,18 +30,15 @@ Widget::~Widget()
 
 void Widget::OnFrame(const webrtc::VideoFrame &frame)
 {
-    qDebug() << Q_FUNC_INFO;
-    rtc::scoped_refptr<webrtc::I420BufferInterface> buffer(
-                frame.video_frame_buffer()->ToI420());
+    QMutexLocker locker(&mutex_);
+    i420_buffer_ = frame.video_frame_buffer()->ToI420();
+
+    //qDebug() << Q_FUNC_INFO << ">>>>>>>frame: " << frame.width() << frame.height() << frame.size();
     if (frame.rotation() != webrtc::kVideoRotation_0) {
-        buffer = webrtc::I420Buffer::Rotate(*buffer, frame.rotation());
+        i420_buffer_ = webrtc::I420Buffer::Rotate(*i420_buffer_, frame.rotation());
     }
 
-    QMutexLocker locker(&m_mutex);
-    Q_EMIT recvFrame(buffer->width(), buffer->height(),
-                     buffer->DataY(), buffer->DataU(), buffer->DataV(),
-                     buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
-    m_recvDataCond.wait(&m_mutex);
+    Q_EMIT recvFrame();
 }
 
 void Widget::on_startBtn_clicked()
@@ -100,15 +97,18 @@ void Widget::on_updateDeviceBtn_clicked()
         char name[kSize] = {0};
         char id[kSize] = {0};
         if (info->GetDeviceName(i, name, kSize, id, kSize) != -1) {
-            ui->deviceComBox->addItem(name);            
+            ui->deviceComBox->addItem(name);
         }
     }
 }
 
-void Widget::onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV)
+void Widget::onRecvFrame()
 {
-    QMutexLocker locker(&m_mutex);
-    ui->videoWidget->setFrameSize(QSize(width, height));
-    ui->videoWidget->updateTextures(dataY, dataU, dataV, linesizeY, linesizeU, linesizeV);
-    m_recvDataCond.wakeOne();
+    QMutexLocker locker(&mutex_);
+    webrtc::I420BufferInterface *buffer = i420_buffer_.get();
+    if (buffer) {
+        ui->videoWidget->setFrameSize(QSize(buffer->width(), buffer->height()));
+        ui->videoWidget->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                        buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+    }
 }

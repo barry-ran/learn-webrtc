@@ -25,7 +25,7 @@ public:
     void OnFrame(const webrtc::VideoFrame& frame) override;
 
 Q_SIGNALS:
-    void recvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV);
+    void recvFrame();
 
 private Q_SLOTS:
     void on_startBtn_clicked();
@@ -37,15 +37,15 @@ private Q_SLOTS:
 
     void on_updateDeviceBtn_clicked();
 
-    void onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV);
+    void onRecvFrame();
 
 private:
     Ui::Widget *ui;
 
     std::unique_ptr<webrtc::test::TestVideoCapturer> video_capturer_;
 
-    QMutex m_mutex;
-    QWaitCondition m_recvDataCond;
+    QMutex mutex_;
+    rtc::scoped_refptr<webrtc::I420BufferInterface> i420_buffer_;
 };
 
 #endif // WIDGET_H
