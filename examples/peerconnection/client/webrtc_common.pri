@@ -1,20 +1,20 @@
 CONFIG += no_keywords
 
 INCLUDEPATH += \
-        $$PWD/../../../../webrtc/src/third_party/libyuv/include \
-        $$PWD/../../../../webrtc/src \
-        $$PWD/../../../../webrtc/src/third_party/abseil-cpp
+        $$PWD/../../../webrtc/src/third_party/libyuv/include \
+        $$PWD/../../../webrtc/src \
+        $$PWD/../../../webrtc/src/third_party/abseil-cpp
 
 CONFIG(debug, debug|release) {
     LIBS += \
-            -L$$PWD/../../../../out/debug/obj -lwebrtc \
-            -L$$PWD/../../../../out/debug/obj/api -lcreate_peerconnection_factory \
-            -L$$PWD/../../../../out/debug/obj/rtc_base -lrtc_base
+            -L$$PWD/../../../out/debug/obj -lwebrtc \
+            -L$$PWD/../../../out/debug/obj/api -lcreate_peerconnection_factory \
+            -L$$PWD/../../../out/debug/obj/rtc_base -lrtc_base
 } else {
     LIBS += \
-            -L$$PWD/../../../../out/release/obj -lwebrtc \
-            -L$$PWD/../../../../out/release/obj/api -lcreate_peerconnection_factory \
-            -L$$PWD/../../../../out/release/obj/rtc_base -lrtc_base
+            -L$$PWD/../../../out/release/obj -lwebrtc \
+            -L$$PWD/../../../out/release/obj/api -lcreate_peerconnection_factory \
+            -L$$PWD/../../../out/release/obj/rtc_base -lrtc_base
 }
 
 # ***********************************************************
@@ -45,9 +45,9 @@ win32 {
         message("x86")
 
         CONFIG(debug, debug|release) {
-            DESTDIR = $$PWD/../../../../exampleout/win32/debug/peerconnection/client
+            DESTDIR = $$PWD/../../../exampleout/win32/debug/peerconnection/client
         } else {
-            DESTDIR = $$PWD/../../../../exampleout/win32/release/peerconnection/client
+            DESTDIR = $$PWD/../../../exampleout/win32/release/peerconnection/client
         }        
     }
 }
@@ -75,12 +75,12 @@ macos {
             -framework CoreVideo
 
     INCLUDEPATH += \
-        $$PWD/../../../../webrtc/src/sdk/objc/base \
-        $$PWD/../../../../webrtc/src/sdk/objc
+        $$PWD/../../../webrtc/src/sdk/objc/base \
+        $$PWD/../../../webrtc/src/sdk/objc
 
     CONFIG(debug, debug|release) {
-        DESTDIR = $$PWD/../../../../exampleout/mac64/debug/peerconnection/client
+        DESTDIR = $$PWD/../../../exampleout/mac64/debug/peerconnection/client
     } else {
-        DESTDIR = $$PWD/../../../../exampleout/mac64/release/peerconnection/client
+        DESTDIR = $$PWD/../../../exampleout/mac64/release/peerconnection/client
     }
 }
