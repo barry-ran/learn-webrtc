@@ -36,6 +36,8 @@
 - 执行build_for_win.bat编译
 
 # TODO
+- 窗口采集windows crash
+- peerconnection client mac
 - OpenCamera 相关类梳理
 - 录制视频
 - 其他js demo
