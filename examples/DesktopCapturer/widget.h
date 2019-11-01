@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTimer>
+#include <QMutex>
 
 #include "modules/desktop_capture/desktop_capturer.h"
 #include <api/video/i420_buffer.h>
@@ -27,7 +28,7 @@ public:
                          std::unique_ptr<webrtc::DesktopFrame> frame) override;
 
 Q_SIGNALS:
-    void recvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV);
+    void recvFrame();
 
 private Q_SLOTS:
     void on_getWindowsBtn_clicked();
@@ -38,7 +39,7 @@ private Q_SLOTS:
 
     void on_sourceListComBox_currentIndexChanged(int index);
 
-    void onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV);
+    void onRecvFrame();
 
 
 private:
@@ -49,6 +50,7 @@ private:
     webrtc::DesktopCapturer::SourceId source_ = -1;
     QTimer* timer_ = new QTimer(this);
 
+    QMutex mutex_;
     rtc::scoped_refptr<webrtc::I420Buffer> i420_buffer_;
 };
 

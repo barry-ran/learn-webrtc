@@ -59,26 +59,23 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
     // step.3 处理回调视频帧
     qDebug() << "result: " << (int)result;
 
-    if (webrtc::DesktopCapturer::Result::SUCCESS == result) {        
+    if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
+        QMutexLocker locker(&mutex_);
         int width = frame->size().width();
         int height = frame->size().height();
-
         if (!i420_buffer_.get() ||
                 i420_buffer_->width() * i420_buffer_->height() != width * height) {
             i420_buffer_ = webrtc::I420Buffer::Create(width, height);
         }
 
-        libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
-                                i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
-                                i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
-                                i420_buffer_->StrideV(), 0, 0, width, height, width,
-                                height, libyuv::kRotate0, libyuv::FOURCC_ARGB);
+        int a = libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
+                              i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
+                              i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
+                              i420_buffer_->StrideV(), 0, 0, width, height, width,
+                              height, libyuv::kRotate0, libyuv::FOURCC_ARGB);
 
-        qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();        
-                
-        Q_EMIT recvFrame(i420_buffer_->width(), i420_buffer_->height(),
-                         i420_buffer_->DataY(), i420_buffer_->DataU(), i420_buffer_->DataV(),
-                         i420_buffer_->StrideY(), i420_buffer_->StrideU(), i420_buffer_->StrideV());
+        //qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();
+        Q_EMIT recvFrame();
 #if 0
         // save rgba
         QFile file("test.rgba");
@@ -112,7 +109,7 @@ void Widget::on_getWindowsBtn_clicked()
             title = QString::number(it->id);
         }
         ui->sourceListComBox->addItem(title, QVariant::fromValue(it->id));
-    }    
+    }
 }
 
 void Widget::on_startCaptureBtn_clicked()
@@ -146,8 +143,13 @@ void Widget::on_sourceListComBox_currentIndexChanged(int index)
     }
 }
 
-void Widget::onRecvFrame(int width, int height, const quint8 *dataY, const quint8 *dataU, const quint8 *dataV, quint32 linesizeY, quint32 linesizeU, quint32 linesizeV)
+void Widget::onRecvFrame()
 {
-    ui->videoWidget->setFrameSize(QSize(width, height));
-    ui->videoWidget->updateTextures(dataY, dataU, dataV, linesizeY, linesizeU, linesizeV);
+    QMutexLocker locker(&mutex_);
+    webrtc::I420BufferInterface *buffer = i420_buffer_.get();
+    if (buffer) {
+        ui->videoWidget->setFrameSize(QSize(buffer->width(), buffer->height()));
+        ui->videoWidget->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                        buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+    }
 }
