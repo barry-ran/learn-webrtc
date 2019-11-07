@@ -33,6 +33,7 @@ class VideoRenderer;
 class Conductor : public webrtc::PeerConnectionObserver,
                   public webrtc::CreateSessionDescriptionObserver,
                   public PeerConnectionClientObserver,
+                  public webrtc::DataChannelObserver,
                   public MainWndCallback {
  public:
   enum CallbackID {
@@ -57,6 +58,18 @@ class Conductor : public webrtc::PeerConnectionObserver,
   void DeletePeerConnection();
   void EnsureStreamingUI();
   void AddTracks();
+  void DataChannelSend(const std::string& parameter);
+
+  //
+  // DataChannelObserver implementation.
+  //
+
+  // The data channel state have changed.
+  virtual void OnStateChange() override;
+  //  A data buffer was successfully received.
+  virtual void OnMessage(const webrtc::DataBuffer& buffer) override;
+  // The data channel's buffered_amount has changed.
+  virtual void OnBufferedAmountChange(uint64_t sent_data_size) override;
 
   //
   // PeerConnectionObserver implementation.
@@ -71,7 +84,7 @@ class Conductor : public webrtc::PeerConnectionObserver,
   void OnRemoveTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
   void OnDataChannel(
-      rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override {}
+      rtc::scoped_refptr<webrtc::DataChannelInterface> channel) override;
   void OnRenegotiationNeeded() override {}
   void OnIceConnectionChange(
       webrtc::PeerConnectionInterface::IceConnectionState new_state) override {}
@@ -123,6 +136,7 @@ class Conductor : public webrtc::PeerConnectionObserver,
   int peer_id_;
   bool loopback_;
   rtc::scoped_refptr<webrtc::PeerConnectionInterface> peer_connection_;
+  rtc::scoped_refptr<webrtc::DataChannelInterface> data_channel_;
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface>
       peer_connection_factory_;
   std::unique_ptr<rtc::Thread> worker_thread_;
