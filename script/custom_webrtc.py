@@ -35,7 +35,7 @@ if __name__ == '__main__':
         print 'dynamic_crt failed'
         exit(1)
     
-    # 由于这个bug https://groups.google.com/forum/#!searchin/discuss-webrtc/$26capture_checker_$20iscurrent|sort:date/discuss-webrtc/HBzGZXL-FvM/SG2TSnaoBAAJ
+    # this bug https://groups.google.com/forum/#!searchin/discuss-webrtc/$26capture_checker_$20iscurrent|sort:date/discuss-webrtc/HBzGZXL-FvM/SG2TSnaoBAAJ
     if not remove_capture_checker():
         print 'remove_capture_checker failed'
         exit(1)
