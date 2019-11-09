@@ -236,7 +236,6 @@ void Conductor::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> c
 
     data_channel_ = channel;
     data_channel_->RegisterObserver(this);
-    DataChannelSend("hello");
 }
 
 void Conductor::OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
@@ -481,14 +480,16 @@ void Conductor::ConnectToPeer(int peer_id) {
 
   if (InitializePeerConnection()) {
     peer_id_ = peer_id;
-    peer_connection_->CreateOffer(
-        this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
 
+    // 必须在CreateOffer之前，因为CreateOffer中将datachannel信息带出去的
     webrtc::DataChannelInit config;
     config.ordered = true;
     config.reliable = true;
     data_channel_ = peer_connection_->CreateDataChannel("data_channel", &config);
     data_channel_->RegisterObserver(this);
+
+    peer_connection_->CreateOffer(
+        this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
   } else {
     main_wnd_->MessageBox("Error", "Failed to initialize PeerConnection", true);
   }
@@ -539,6 +540,7 @@ void Conductor::DataChannelSend(const std::string &parameter)
 void Conductor::OnStateChange()
 {
     RTC_LOG(INFO) << __FUNCTION__;
+    DataChannelSend("hello");
 }
 
 void Conductor::OnMessage(const webrtc::DataBuffer &buffer)
