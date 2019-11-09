@@ -1,6 +1,6 @@
 SOURCES += \
         $$PWD/test_video_capturer.cc \
-        $$PWD/platform_video_capturer.cc \
+        $$PWD/platform_video_capturer.cc
 
 HEADERS += \
         $$PWD/test_video_capturer.h \

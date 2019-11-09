@@ -26,11 +26,11 @@ MainWnd::MainWnd(const char* server,
 
     connect(this, &MainWnd::EmitUIThreadCallback, this, &MainWnd::OnUIThreadCallback, Qt::QueuedConnection);
 
-    remoteVideoWidget_ = new QYUVOpenGLWidget(this);
-    remoteVideoWidget_->setObjectName(QString::fromUtf8("remoteVideoWidget"));
-    remoteVideoWidget_->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
-    remoteVideoWidget_->resize(100, 100);
-    remoteVideoWidget_->hide();
+    localVideoWidget_ = new QYUVOpenGLWidget(this);
+    localVideoWidget_->setObjectName(QString::fromUtf8("remoteVideoWidget"));
+    localVideoWidget_->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
+    localVideoWidget_->resize(100, 100);
+    localVideoWidget_->hide();
 }
 
 MainWnd::~MainWnd()
@@ -60,7 +60,7 @@ void MainWnd::SwitchToConnectUI()
     ui->connectWidget->show();
     ui->clientsWidget->hide();
     ui->videoWidget->hide();
-    remoteVideoWidget_->hide();
+    localVideoWidget_->hide();
     ui_ = CONNECT_TO_SERVER;
 }
 
@@ -69,7 +69,7 @@ void MainWnd::SwitchToPeerList(const Peers &peers)
     ui->connectWidget->hide();
     ui->clientsWidget->show();
     ui->videoWidget->hide();
-    remoteVideoWidget_->hide();
+    localVideoWidget_->hide();
 
     QStringList data;
     Peers::const_iterator i = peers.begin();
@@ -92,8 +92,8 @@ void MainWnd::SwitchToStreamingUI()
     ui->connectWidget->hide();
     ui->clientsWidget->hide();
     ui->videoWidget->show();
-    remoteVideoWidget_->show();
-    remoteVideoWidget_->raise();
+    localVideoWidget_->show();
+    localVideoWidget_->raise();
     ui_ = STREAMING;
 }
 
@@ -126,8 +126,8 @@ void MainWnd::QueueUIThreadCallback(int msg_id, void *data)
 
 void MainWnd::resizeEvent(QResizeEvent *event)
 {
-    remoteVideoWidget_->move(width() - remoteVideoWidget_->width(),
-                             height() - remoteVideoWidget_->height());
+    localVideoWidget_->move(width() - localVideoWidget_->width(),
+                             height() - localVideoWidget_->height());
 }
 
 void MainWnd::closeEvent(QCloseEvent *event)
@@ -191,8 +191,8 @@ void MainWnd::OnUpdateLocalImage()
         VideoRenderer::AutoLock<VideoRenderer> local_lock(local_renderer);
         webrtc::I420BufferInterface *buffer = local_renderer->getBuffer();
         if (buffer) {
-            remoteVideoWidget_->setFrameSize(QSize(buffer->width(), buffer->height()));
-            remoteVideoWidget_->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+            localVideoWidget_->setFrameSize(QSize(buffer->width(), buffer->height()));
+            localVideoWidget_->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
                                                buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
         }
     }

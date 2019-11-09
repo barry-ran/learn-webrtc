@@ -120,6 +120,6 @@ private:
     MainWndCallback* callback_;
     std::string server_;
     std::string port_;
-    QYUVOpenGLWidget *remoteVideoWidget_ = nullptr;
+    QYUVOpenGLWidget *localVideoWidget_ = nullptr;
 };
 #endif // MAINWND_H
