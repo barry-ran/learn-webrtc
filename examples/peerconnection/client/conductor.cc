@@ -383,7 +383,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
     }
   } else {
     std::string sdp_mid;
-    int sdp_mlineindex = 0;
+    int sdp_mlineindex = -1;
     std::string sdp;
     if (parse_doucment.isObject()) {
         QJsonObject obj = parse_doucment.object();
@@ -399,6 +399,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
         if(obj.contains(kCandidateSdpMlineIndexName))  {
             QJsonValue name_value = obj.take(kCandidateSdpMlineIndexName);
             if(name_value.isDouble()) {
+                findmLineindex = true;
                 sdp_mlineindex = name_value.toInt();
             }
         }
@@ -412,7 +413,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
             }
         }
     }
-    if (sdp_mid.empty() || sdp.empty() || 0 == sdp_mlineindex) {
+    if (sdp_mid.empty() || sdp.empty() || -1 == sdp_mlineindex) {
       RTC_LOG(WARNING) << "Can't parse received message.";
       return;
     }
