@@ -399,7 +399,6 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
         if(obj.contains(kCandidateSdpMlineIndexName))  {
             QJsonValue name_value = obj.take(kCandidateSdpMlineIndexName);
             if(name_value.isDouble()) {
-                findmLineindex = true;
                 sdp_mlineindex = name_value.toInt();
             }
         }
