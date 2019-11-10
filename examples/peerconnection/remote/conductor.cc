@@ -48,6 +48,10 @@
 
 #include "controlmsg.h"
 
+#ifdef Q_OS_WIN
+#include "inputinject.h"
+#endif
+
 namespace {
 // Names used for a IceCandidate JSON object.
 const char kCandidateSdpMidName[] = "sdpMid";
@@ -553,12 +557,15 @@ void Conductor::OnMessage(const webrtc::DataBuffer &buffer)
         if (ControlMsg::CMT_NULL == msg.type()) {
             break;
         }
-        QEvent::Type action;
-        Qt::MouseButton button;
-        QPointF pos;
-        msg.getInjectMouseMsgData(action, button, pos);
-
-        RTC_LOG(INFO) << "******************************";
+#ifdef Q_OS_WIN
+        if (ControlMsg::CMT_INJECT_MOUSE == msg.type()) {
+            QEvent::Type action;
+            Qt::MouseButton button;
+            QPointF pos;
+            msg.getInjectMouseMsgData(action, button, pos);
+            InputInject::injectMouseEvent(action, button, pos);
+        }
+#endif
     } while (true);
 }
 

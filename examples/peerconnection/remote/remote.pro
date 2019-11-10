@@ -53,6 +53,12 @@ INCLUDEPATH += \
 
 win32 {
     LIBS += Ole32.lib OleAut32.lib User32.lib Ws2_32.lib
+
+    SOURCES += \
+        inputinject.cpp
+
+    HEADERS += \
+        inputinject.h
 }
 
 macos {
