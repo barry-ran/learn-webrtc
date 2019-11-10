@@ -36,6 +36,10 @@ MainWnd::MainWnd(const char* server,
     localVideoWidget_->resize(100, 100);
     localVideoWidget_->hide();
 #endif
+
+    setMouseTracking(true);
+    ui->videoWidget->setMouseTracking(true);
+    ui->remoteVideoWidget->setMouseTracking(true);
 }
 
 MainWnd::~MainWnd()
