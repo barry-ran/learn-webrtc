@@ -496,6 +496,7 @@ void Conductor::ConnectToPeer(int peer_id) {
 
         peer_connection_->CreateOffer(
                     this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+        offer_ = true;
     } else {
         main_wnd_->MessageBox("Error", "Failed to initialize PeerConnection", true);
     }
@@ -551,6 +552,9 @@ void Conductor::OnStateChange()
 void Conductor::OnMessage(const webrtc::DataBuffer &buffer)
 {
     RTC_LOG(INFO) << __FUNCTION__;
+    if (offer_) {
+        return;
+    }
     control_msg_buf_.append(buffer.data.data<char>(), buffer.data.size());
     do {
         ControlMsg msg = ControlMsg::unserializeData(control_msg_buf_);
@@ -577,6 +581,7 @@ void Conductor::OnBufferedAmountChange(uint64_t sent_data_size)
 
 void Conductor::DisconnectFromCurrentPeer() {
     RTC_LOG(INFO) << __FUNCTION__;
+    offer_ = false;
     if (peer_connection_.get()) {
         client_->SendHangUp(peer_id_);
         DeletePeerConnection();

@@ -151,6 +151,7 @@ class Conductor : public webrtc::PeerConnectionObserver,
   std::string server_;
   rtc::scoped_refptr<CapturerTrackSource> video_device_;
   QByteArray control_msg_buf_;
+  bool offer_ = false;
 };
 
 #endif  // EXAMPLES_PEERCONNECTION_CLIENT_CONDUCTOR_H_
