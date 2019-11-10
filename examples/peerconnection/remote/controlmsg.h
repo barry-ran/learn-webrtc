@@ -14,11 +14,16 @@ public:
         CMT_INJECT_MOUSE = 0,
     };
 
-    explicit ControlMsg(ControlMsgType controlMsgType);
+    explicit ControlMsg(ControlMsgType controlMsgType = ControlMsg::CMT_NULL);
+    ControlMsg(const ControlMsg& msg);
+    virtual ~ControlMsg();
 
     void setInjectMouseMsgData(QEvent::Type action, Qt::MouseButton button, QPointF pos);
-
+    void getInjectMouseMsgData(QEvent::Type& action, Qt::MouseButton& button, QPointF& pos);
     QByteArray serializeData();
+    static ControlMsg unserializeData(QByteArray& data);
+
+    ControlMsg::ControlMsgType type();
 Q_SIGNALS:
 
 public Q_SLOTS:

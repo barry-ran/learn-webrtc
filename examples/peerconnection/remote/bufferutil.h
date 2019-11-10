@@ -11,6 +11,7 @@ public:
     static quint16 read16(QBuffer& buffer);
     static quint32 read32(QBuffer& buffer);
     static quint64 read64(QBuffer& buffer);
+    static float readFloat(QBuffer& buffer);
 };
 
 #endif // BUFFERUTIL_H

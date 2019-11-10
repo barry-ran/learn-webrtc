@@ -46,6 +46,8 @@
 #include "rtc_base/rtc_certificate_generator.h"
 #include "platform_video_capturer.h"
 
+#include "controlmsg.h"
+
 namespace {
 // Names used for a IceCandidate JSON object.
 const char kCandidateSdpMidName[] = "sdpMid";
@@ -545,7 +547,19 @@ void Conductor::OnStateChange()
 void Conductor::OnMessage(const webrtc::DataBuffer &buffer)
 {
     RTC_LOG(INFO) << __FUNCTION__;
-    RTC_LOG(INFO) << std::string(buffer.data.data<char>(), buffer.data.size());
+    control_msg_buf_.append(buffer.data.data<char>(), buffer.data.size());
+    do {
+        ControlMsg msg = ControlMsg::unserializeData(control_msg_buf_);
+        if (ControlMsg::CMT_NULL == msg.type()) {
+            break;
+        }
+        QEvent::Type action;
+        Qt::MouseButton button;
+        QPointF pos;
+        msg.getInjectMouseMsgData(action, button, pos);
+
+        RTC_LOG(INFO) << "******************************";
+    } while (true);
 }
 
 void Conductor::OnBufferedAmountChange(uint64_t sent_data_size)

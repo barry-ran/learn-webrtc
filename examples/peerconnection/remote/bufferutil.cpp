@@ -54,3 +54,10 @@ quint64 BufferUtil::read64(QBuffer &buffer)
 
     return ((quint64) msb << 32) | lsb;;
 }
+
+float BufferUtil::readFloat(QBuffer &buffer)
+{
+    float ret = 0;
+    buffer.read((char*)&ret, 4);
+    return ret;
+}
