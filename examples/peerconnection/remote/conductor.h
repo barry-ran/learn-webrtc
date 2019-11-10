@@ -30,6 +30,7 @@ namespace cricket {
 class VideoRenderer;
 }  // namespace cricket
 
+class CapturerTrackSource;
 class Conductor : public webrtc::PeerConnectionObserver,
                   public webrtc::CreateSessionDescriptionObserver,
                   public PeerConnectionClientObserver,
@@ -146,6 +147,7 @@ class Conductor : public webrtc::PeerConnectionObserver,
   MainWindow* main_wnd_;
   std::deque<std::string*> pending_messages_;
   std::string server_;
+  rtc::scoped_refptr<CapturerTrackSource> video_device_;
 };
 
 #endif  // EXAMPLES_PEERCONNECTION_CLIENT_CONDUCTOR_H_

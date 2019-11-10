@@ -46,13 +46,13 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_MAC
     // for rtc::Thread::Current()->socketserver()->CreateAsyncSocket;
-    // 定时在主线程处理message queue消息（这里主要为了socket消息）
+    // 定时在主线程处理message queue消息（这里主要为了socket消息）,后面采用更好的方式
     QTimer processSocket(&a);
     QObject::connect(&processSocket, &QTimer::timeout, [=]() {
         rtc::Thread* thread = rtc::Thread::Current();
         thread->ProcessMessages(0);
     });
-    processSocket.start(100);
+    processSocket.start(50);
 #endif
 
     int ret = a.exec();

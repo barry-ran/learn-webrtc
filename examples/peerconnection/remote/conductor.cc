@@ -69,6 +69,8 @@ class DummySetSessionDescriptionObserver
   }
 };
 
+}  // namespace
+
 class CapturerTrackSource : public webrtc::VideoTrackSource {
  public:
   static rtc::scoped_refptr<CapturerTrackSource> Create() {
@@ -97,8 +99,6 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
   }
   std::unique_ptr<webrtc::test::TestVideoCapturer> capturer_;
 };
-
-}  // namespace
 
 Conductor::Conductor(PeerConnectionClient* client, MainWindow* main_wnd)
     : peer_id_(-1), loopback_(false), client_(client), main_wnd_(main_wnd) {
@@ -510,11 +510,11 @@ void Conductor::AddTracks() {
                       << result_or_error.error().message();
   }
 
-  rtc::scoped_refptr<CapturerTrackSource> video_device =
+  video_device_ =
       CapturerTrackSource::Create();
-  if (video_device) {
+  if (video_device_) {
     rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track_(
-        peer_connection_factory_->CreateVideoTrack(kVideoLabel, video_device));
+        peer_connection_factory_->CreateVideoTrack(kVideoLabel, video_device_));
     main_wnd_->StartLocalRenderer(video_track_);
 
     result_or_error = peer_connection_->AddTrack(video_track_, {kStreamId});
