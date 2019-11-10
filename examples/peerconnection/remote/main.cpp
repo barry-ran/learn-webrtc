@@ -1,6 +1,9 @@
 #include "main_wnd.h"
 
 #include <QApplication>
+#ifdef Q_OS_MAC
+#include <QTimer>
+#endif
 
 #include <string>
 #include <vector>
@@ -23,6 +26,7 @@ int main(int argc, char *argv[])
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #ifdef Q_OS_WIN
     rtc::WinsockInitializer winsock_init;
+    // 内部创建message wnd，定时在主线程处理message queue消息
     rtc::Win32SocketServer w32_ss;
     rtc::Win32Thread w32_thread(&w32_ss);
     rtc::ThreadManager::Instance()->SetCurrentThread(&w32_thread);
@@ -40,7 +44,23 @@ int main(int argc, char *argv[])
     rtc::scoped_refptr<Conductor> conductor(
                 new rtc::RefCountedObject<Conductor>(&client, &wnd));
 
+#ifdef Q_OS_MAC
+    // for rtc::Thread::Current()->socketserver()->CreateAsyncSocket;
+    // 定时在主线程处理message queue消息（这里主要为了socket消息）
+    QTimer processSocket(&a);
+    QObject::connect(&processSocket, &QTimer::timeout, [=]() {
+        rtc::Thread* thread = rtc::Thread::Current();
+        thread->ProcessMessages(0);
+    });
+    processSocket.start(100);
+#endif
+
     int ret = a.exec();
+
+#ifdef Q_OS_MAC
+    processSocket.stop();
+#endif
+
     rtc::CleanupSSL();
     return ret;
 }

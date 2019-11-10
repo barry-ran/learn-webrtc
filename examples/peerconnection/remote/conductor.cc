@@ -135,7 +135,7 @@ bool Conductor::InitializePeerConnection() {
 #if defined(Q_OS_MAC)
               network_thread_.get(), worker_thread_.get(), signaling_thread_.get(),
 #elif defined(Q_OS_WIN)
-              network_thread_.get(), worker_thread_.get(), signaling_thread_.get(),
+              nullptr, nullptr, nullptr,
 #endif
               nullptr /* default_adm */,
       webrtc::CreateBuiltinAudioEncoderFactory(),
