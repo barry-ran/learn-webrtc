@@ -78,7 +78,7 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
     const size_t kDeviceIndex = 0;
     std::unique_ptr<webrtc::test::TestVideoCapturer> capturer;
 
-    capturer = webrtc::test::CreateVideoCapturer(kWidth, kHeight, kFps, kDeviceIndex);
+    capturer = webrtc::test::CreateVideoCapturer(kWidth, kHeight, kFps, kDeviceIndex, true);
     if (capturer) {
         return new rtc::RefCountedObject<CapturerTrackSource>(std::move(capturer));
     }
@@ -135,7 +135,7 @@ bool Conductor::InitializePeerConnection() {
 #if defined(Q_OS_MAC)
               network_thread_.get(), worker_thread_.get(), signaling_thread_.get(),
 #elif defined(Q_OS_WIN)
-              nullptr, nullptr, nullptr,
+              network_thread_.get(), worker_thread_.get(), signaling_thread_.get(),
 #endif
               nullptr /* default_adm */,
       webrtc::CreateBuiltinAudioEncoderFactory(),
@@ -196,6 +196,7 @@ void Conductor::DeletePeerConnection() {
   main_wnd_->StopLocalRenderer();
   main_wnd_->StopRemoteRenderer();
   peer_connection_ = nullptr;
+  data_channel_ = nullptr;
   peer_connection_factory_ = nullptr;
   peer_id_ = -1;
   loopback_ = false;
@@ -226,6 +227,15 @@ void Conductor::OnRemoveTrack(
     rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) {
   RTC_LOG(INFO) << __FUNCTION__ << " " << receiver->id();
   main_wnd_->QueueUIThreadCallback(TRACK_REMOVED, receiver->track().release());
+}
+
+void Conductor::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel)
+{
+    RTC_LOG(INFO) << __FUNCTION__ << "PeerConnectionObserver::DataChannel("
+                  << channel << ", " << data_channel_.get() << ")";
+
+    data_channel_ = channel;
+    data_channel_->RegisterObserver(this);
 }
 
 void Conductor::OnIceCandidate(const webrtc::IceCandidateInterface* candidate) {
@@ -470,6 +480,14 @@ void Conductor::ConnectToPeer(int peer_id) {
 
   if (InitializePeerConnection()) {
     peer_id_ = peer_id;
+
+    // 必须在CreateOffer之前，因为CreateOffer中将datachannel信息带出去的
+    webrtc::DataChannelInit config;
+    config.ordered = true;
+    config.reliable = true;
+    data_channel_ = peer_connection_->CreateDataChannel("data_channel", &config);
+    data_channel_->RegisterObserver(this);
+
     peer_connection_->CreateOffer(
         this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
   } else {
@@ -509,6 +527,32 @@ void Conductor::AddTracks() {
   }
 
   main_wnd_->SwitchToStreamingUI();
+}
+
+void Conductor::DataChannelSend(const std::string &parameter)
+{
+    if (data_channel_) {
+        webrtc::DataBuffer buffer(rtc::CopyOnWriteBuffer(parameter.c_str(), parameter.size()), true);
+        data_channel_->Send(buffer);
+    }
+}
+
+void Conductor::OnStateChange()
+{
+    RTC_LOG(INFO) << __FUNCTION__;
+    DataChannelSend("hello");
+}
+
+void Conductor::OnMessage(const webrtc::DataBuffer &buffer)
+{
+    RTC_LOG(INFO) << __FUNCTION__;
+    RTC_LOG(INFO) << std::string(buffer.data.data<char>(), buffer.data.size());
+}
+
+void Conductor::OnBufferedAmountChange(uint64_t sent_data_size)
+{
+    RTC_LOG(INFO) << __FUNCTION__ << ":"
+                  << "DataChannelObserver::BufferedAmountChange(" << sent_data_size << ")";
 }
 
 void Conductor::DisconnectFromCurrentPeer() {

@@ -1,10 +1,12 @@
 SOURCES += \
         $$PWD/test_video_capturer.cc \
-        $$PWD/platform_video_capturer.cc
+        $$PWD/platform_video_capturer.cc \
+        $$PWD/desktop_capturer.cc
 
 HEADERS += \
         $$PWD/test_video_capturer.h \
-        $$PWD/platform_video_capturer.h
+        $$PWD/platform_video_capturer.h \
+        $$PWD/desktop_capturer.h
 
 win32 {
     SOURCES += \

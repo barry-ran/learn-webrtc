@@ -5,6 +5,8 @@
 #include "main_wnd.h"
 #include "ui_mainwnd.h"
 
+//#define SHOW_LOCAL_VIDEO
+
 MainWnd::MainWnd(const char* server,
                  int port,
                  QWidget *parent)
@@ -26,11 +28,13 @@ MainWnd::MainWnd(const char* server,
 
     connect(this, &MainWnd::EmitUIThreadCallback, this, &MainWnd::OnUIThreadCallback, Qt::QueuedConnection);
 
+#ifdef SHOW_LOCAL_VIDEO
     localVideoWidget_ = new QYUVOpenGLWidget(this);
     localVideoWidget_->setObjectName(QString::fromUtf8("remoteVideoWidget"));
     localVideoWidget_->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
     localVideoWidget_->resize(100, 100);
     localVideoWidget_->hide();
+#endif
 }
 
 MainWnd::~MainWnd()
@@ -60,7 +64,9 @@ void MainWnd::SwitchToConnectUI()
     ui->connectWidget->show();
     ui->clientsWidget->hide();
     ui->videoWidget->hide();
-    localVideoWidget_->hide();
+    if (localVideoWidget_) {
+        localVideoWidget_->hide();
+    }
     ui_ = CONNECT_TO_SERVER;
 }
 
@@ -69,7 +75,9 @@ void MainWnd::SwitchToPeerList(const Peers &peers)
     ui->connectWidget->hide();
     ui->clientsWidget->show();
     ui->videoWidget->hide();
-    localVideoWidget_->hide();
+    if (localVideoWidget_) {
+        localVideoWidget_->hide();
+    }
 
     QStringList data;
     Peers::const_iterator i = peers.begin();
@@ -92,20 +100,26 @@ void MainWnd::SwitchToStreamingUI()
     ui->connectWidget->hide();
     ui->clientsWidget->hide();
     ui->videoWidget->show();
-    localVideoWidget_->show();
-    localVideoWidget_->raise();
+    if (localVideoWidget_) {
+        localVideoWidget_->show();
+        localVideoWidget_->raise();
+    }
     ui_ = STREAMING;
 }
 
 void MainWnd::StartLocalRenderer(webrtc::VideoTrackInterface *local_video)
 {
+#ifdef SHOW_LOCAL_VIDEO
     local_renderer_.reset(new VideoRenderer(local_video));
     connect(local_renderer_.get(), &VideoRenderer::recvFrame, this, &MainWnd::OnUpdateLocalImage, Qt::QueuedConnection);
+#endif
 }
 
 void MainWnd::StopLocalRenderer()
 {
+#ifdef SHOW_LOCAL_VIDEO
     local_renderer_.reset();
+#endif
 }
 
 void MainWnd::StartRemoteRenderer(webrtc::VideoTrackInterface *remote_video)
@@ -126,8 +140,10 @@ void MainWnd::QueueUIThreadCallback(int msg_id, void *data)
 
 void MainWnd::resizeEvent(QResizeEvent *event)
 {
-    localVideoWidget_->move(width() - localVideoWidget_->width(),
-                             height() - localVideoWidget_->height());
+    if (localVideoWidget_) {
+        localVideoWidget_->move(width() - localVideoWidget_->width(),
+                                 height() - localVideoWidget_->height());
+    }
 }
 
 void MainWnd::closeEvent(QCloseEvent *event)
@@ -191,9 +207,11 @@ void MainWnd::OnUpdateLocalImage()
         VideoRenderer::AutoLock<VideoRenderer> local_lock(local_renderer);
         webrtc::I420BufferInterface *buffer = local_renderer->getBuffer();
         if (buffer) {
-            localVideoWidget_->setFrameSize(QSize(buffer->width(), buffer->height()));
-            localVideoWidget_->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
-                                               buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+            if (localVideoWidget_) {
+                localVideoWidget_->setFrameSize(QSize(buffer->width(), buffer->height()));
+                localVideoWidget_->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
+                                                   buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+            }
         }
     }
     //localVideoLabel_->setPixmap(QPixmap::fromImage(image.scaled(localVideoLabel_->width(), localVideoLabel_->height())));

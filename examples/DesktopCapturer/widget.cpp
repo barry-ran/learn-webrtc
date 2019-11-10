@@ -57,25 +57,47 @@ Widget::~Widget()
 void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique_ptr<webrtc::DesktopFrame> frame)
 {
     // step.3 处理回调视频帧
-    qDebug() << "result: " << (int)result;
-
+    qDebug() << "result: " << (int)result;    
     if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
         QMutexLocker locker(&mutex_);
         int width = frame->size().width();
+        // width必须是8的整数倍，否则opengl解码crash（居然被我找到原因了）
+        width &= ~7;
         int height = frame->size().height();
+        if (width == 0) {
+            width = 1;
+        }
         if (!i420_buffer_.get() ||
                 i420_buffer_->width() * i420_buffer_->height() != width * height) {
             i420_buffer_ = webrtc::I420Buffer::Create(width, height);
         }
 
-        int a = libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
+        libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
                               i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
                               i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
-                              i420_buffer_->StrideV(), 0, 0, width, height, width,
-                              height, libyuv::kRotate0, libyuv::FOURCC_ARGB);
+                              i420_buffer_->StrideV(), 0, 0, frame->size().width(),
+                              frame->size().height(), width,height,
+                              libyuv::kRotate0, libyuv::FOURCC_ARGB);
 
-        //qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();
         Q_EMIT recvFrame();
+#if 0
+        std::string filename("d:/capture_screen_");
+        filename += std::to_string(width);
+        filename += "x";
+        filename += std::to_string(height);
+        filename += ".yuv";
+        QFile file(filename.c_str());
+        //已读写方式打开文件，
+        //如果文件不存在会自动创建文件
+        if(file.open(QIODevice::WriteOnly | QIODevice::Append)){
+            file.write((char*)i420_buffer_->MutableDataY(), i420_buffer_->StrideY() * height);
+            file.write((char*)i420_buffer_->MutableDataU(), (i420_buffer_->StrideU() * height) >> 1);
+            file.write((char*)i420_buffer_->MutableDataV(), (i420_buffer_->StrideV() * height) >> 1);
+            //关闭文件
+            file.close();
+        }
+#endif
+
 #if 0
         // save rgba
         QFile file("test.rgba");
@@ -146,10 +168,10 @@ void Widget::on_sourceListComBox_currentIndexChanged(int index)
 void Widget::onRecvFrame()
 {
     QMutexLocker locker(&mutex_);
-    webrtc::I420BufferInterface *buffer = i420_buffer_.get();
-    if (buffer) {
-        ui->videoWidget->setFrameSize(QSize(buffer->width(), buffer->height()));
-        ui->videoWidget->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
-                                        buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+
+    if (i420_buffer_) {
+        ui->videoWidget->setFrameSize(QSize(i420_buffer_->width(), i420_buffer_->height()));
+        ui->videoWidget->updateTextures(i420_buffer_->MutableDataY(), i420_buffer_->MutableDataU(), i420_buffer_->MutableDataV(),
+                                        i420_buffer_->StrideY(), i420_buffer_->StrideU(), i420_buffer_->StrideV());
     }
 }
