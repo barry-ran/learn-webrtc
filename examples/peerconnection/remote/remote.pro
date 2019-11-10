@@ -16,6 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    bufferutil.cpp \
+    controlmsg.cpp \
     main.cpp \
     main_wnd.cpp \
     defaults.cc \
@@ -24,6 +26,8 @@ SOURCES += \
     videorenderer.cpp
 
 HEADERS += \
+    bufferutil.h \
+    controlmsg.h \
     main_wnd.h \
     flag_defs.h \
     defaults.h \

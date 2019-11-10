@@ -4,6 +4,7 @@
 
 #include "main_wnd.h"
 #include "ui_mainwnd.h"
+#include "controlmsg.h"
 
 //#define SHOW_LOCAL_VIDEO
 
@@ -142,7 +143,7 @@ void MainWnd::resizeEvent(QResizeEvent *event)
 {
     if (localVideoWidget_) {
         localVideoWidget_->move(width() - localVideoWidget_->width(),
-                                 height() - localVideoWidget_->height());
+                                height() - localVideoWidget_->height());
     }
 }
 
@@ -167,6 +168,49 @@ void MainWnd::keyPressEvent(QKeyEvent *event)
                 callback_->DisconnectFromServer();
             }
         }
+    }
+}
+
+void MainWnd::mousePressEvent(QMouseEvent *event)
+{
+    QRect rc = ui->remoteVideoWidget->geometry();
+    if (rc.contains(event->pos())) {
+        ControlMsg msg(ControlMsg::CMT_INJECT_MOUSE);
+        event->setLocalPos(ui->remoteVideoWidget->mapFrom(this, event->localPos().toPoint()));
+        QPointF pos;
+        pos.setX(event->localPos().x()/rc.width());
+        pos.setY(event->localPos().y()/rc.height());
+        msg.setInjectMouseMsgData(event->type(), event->button(), pos);
+        callback_->SendControlMsg(msg.serializeData());
+    }
+}
+
+void MainWnd::mouseReleaseEvent(QMouseEvent *event)
+{
+    mouseEventSend(event);
+}
+
+void MainWnd::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    mouseEventSend(event);
+}
+
+void MainWnd::mouseMoveEvent(QMouseEvent *event)
+{
+    mouseEventSend(event);
+}
+
+void MainWnd::mouseEventSend(QMouseEvent *event)
+{
+    QRect rc = ui->remoteVideoWidget->geometry();
+    if (rc.contains(event->pos())) {
+        ControlMsg msg(ControlMsg::CMT_INJECT_MOUSE);
+        event->setLocalPos(ui->remoteVideoWidget->mapFrom(this, event->localPos().toPoint()));
+        QPointF pos;
+        pos.setX(event->localPos().x()/rc.width());
+        pos.setY(event->localPos().y()/rc.height());
+        msg.setInjectMouseMsgData(event->type(), event->button(), pos);
+        callback_->SendControlMsg(msg.serializeData());
     }
 }
 
@@ -210,7 +254,7 @@ void MainWnd::OnUpdateLocalImage()
             if (localVideoWidget_) {
                 localVideoWidget_->setFrameSize(QSize(buffer->width(), buffer->height()));
                 localVideoWidget_->updateTextures(buffer->DataY(), buffer->DataU(), buffer->DataV(),
-                                                   buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
+                                                  buffer->StrideY(), buffer->StrideU(), buffer->StrideV());
             }
         }
     }

@@ -59,7 +59,7 @@ class Conductor : public webrtc::PeerConnectionObserver,
   void DeletePeerConnection();
   void EnsureStreamingUI();
   void AddTracks();
-  void DataChannelSend(const std::string& parameter);
+  void DataChannelSend(const QByteArray& data);
 
   //
   // DataChannelObserver implementation.
@@ -129,6 +129,8 @@ class Conductor : public webrtc::PeerConnectionObserver,
   // CreateSessionDescriptionObserver implementation.
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
   void OnFailure(webrtc::RTCError error) override;
+
+  void SendControlMsg(const QByteArray& data) override;
 
  protected:
   // Send a message to the remote peer.

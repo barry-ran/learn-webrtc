@@ -31,6 +31,7 @@ class MainWndCallback {
   virtual void DisconnectFromCurrentPeer() = 0;
   virtual void UIThreadCallback(int msg_id, void* data) = 0;
   virtual void Close() = 0;
+  virtual void SendControlMsg(const QByteArray& data) = 0;
 
  protected:
   virtual ~MainWndCallback() {}
@@ -98,6 +99,13 @@ protected:
     virtual void resizeEvent(QResizeEvent *event);
     virtual void closeEvent(QCloseEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+
+protected:
+    void mouseEventSend(QMouseEvent *event);
 
 private Q_SLOTS:
     void on_connectBtn_clicked();
