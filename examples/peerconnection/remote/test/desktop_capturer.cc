@@ -85,17 +85,23 @@ void DesktopCapturer::OnCaptureResult(webrtc::DesktopCapturer::Result result, st
 {
     if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
         int width = frame->size().width();
+        // width必须是8的整数倍，否则opengl解码crash（居然被我找到原因了）
+        width &= ~7;
         int height = frame->size().height();
+        if (width == 0) {
+            width = 1;
+        }
         if (!i420_buffer_.get() ||
                 i420_buffer_->width() * i420_buffer_->height() != width * height) {
             i420_buffer_ = webrtc::I420Buffer::Create(width, height);
         }
 
-        int a = libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
-                                      i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
-                                      i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
-                                      i420_buffer_->StrideV(), 0, 0, width, height, width,
-                                      height, libyuv::kRotate0, libyuv::FOURCC_ARGB);
+        libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
+                              i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
+                              i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
+                              i420_buffer_->StrideV(), 0, 0, frame->size().width(),
+                              frame->size().height(), width,height,
+                              libyuv::kRotate0, libyuv::FOURCC_ARGB);
 
         TestVideoCapturer::OnFrame(webrtc::VideoFrame(i420_buffer_, 0, rtc::TimeMillis(), webrtc::kVideoRotation_0));
         //qDebug() << "width: " << frame->size().width() << "height: " << frame->size().height();
