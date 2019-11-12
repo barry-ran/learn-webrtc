@@ -61,11 +61,16 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
     if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
         QMutexLocker locker(&mutex_);
         int width = frame->size().width();
-        // width必须是8的整数倍，否则opengl解码crash（居然被我找到原因了）
-        width &= ~7;
         int height = frame->size().height();
+        // width和height必须是8的整数倍，否则opengl解码crash或者画面异常（居然被我找到原因了）
+        width &= ~7;
+        height &= ~7;
+
         if (width == 0) {
             width = 1;
+        }
+        if (height == 0) {
+            height = 1;
         }
         if (!i420_buffer_.get() ||
                 i420_buffer_->width() * i420_buffer_->height() != width * height) {
@@ -90,9 +95,11 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
         //已读写方式打开文件，
         //如果文件不存在会自动创建文件
         if(file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            file.write((char*)i420_buffer_->MutableDataY(), i420_buffer_->StrideY() * height);
-            file.write((char*)i420_buffer_->MutableDataU(), (i420_buffer_->StrideU() * height) >> 1);
-            file.write((char*)i420_buffer_->MutableDataV(), (i420_buffer_->StrideV() * height) >> 1);
+            // Stride是对齐之后的宽度，是大于等于宽度的，保存文件不需要保存对齐后多出的内容
+            file.write((char*)i420_buffer_->MutableDataY(), width * height);
+            // u/v数据量是y的1/4(一帧YUV大小是width * height * 1.5)
+            file.write((char*)i420_buffer_->MutableDataU(), (width * height) >> 2);
+            file.write((char*)i420_buffer_->MutableDataV(), (width * height) >> 2);
             //关闭文件
             file.close();
         }
