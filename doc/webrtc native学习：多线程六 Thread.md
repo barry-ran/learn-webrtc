@@ -270,4 +270,33 @@ cricket::MediaEngineInterface* media_engine =
 
 # 补充说明
 1. Thread::Invoke的作用是当前线程将任务同步交给目标线程执行，内部调用Send实现，Send和Invoke都是同步，post系列是异步
-2. 创建Thread的时候，如果没有传SocketServer参数，Thread会自己创建一个，用来作为多路事件分离的触发器，这也是我们为什么可以直接
+2. 创建Thread的时候，如果没有传SocketServer参数，Thread会自己创建一个，用来作为多路事件分离的触发器，所以当我们创建一个默认的Thread的时候，它是拥有多路事件处理能力的，可以直接调用其Post，Send等方法。
+
+## 如何让已有线程成为Thread对象，并支持多路事件分离的能力？
+### windows主线程
+1. 安装win32SocketServer
+```
+rtc::WinsockInitializer winsock_init;
+    // 内部创建message wnd，这样message wnd的消息处理和主线程消息泵（while(GetMessage)）就关联起来了，借此作为多路事件分离器来处理message queue消息
+    rtc::Win32SocketServer w32_ss;
+    rtc::Win32Thread w32_thread(&w32_ss);
+    rtc::ThreadManager::Instance()->SetCurrentThread(&w32_thread);
+```
+2. 测试Post
+在主线程中执行
+```
+rtc::Thread::Current()->PostDelayed(RTC_FROM_HERE, 100, this, 0);
+```
+
+### mac主线程
+借助QTimer定时执行ProcessMessages来处理消息
+```
+// for rtc::Thread::Current()->socketserver()->CreateAsyncSocket;
+    // 定时在主线程处理message queue消息（这里主要为了socket消息）,后面采用更好的方式
+    QTimer processSocket(&a);
+    QObject::connect(&processSocket, &QTimer::timeout, [=]() {
+        rtc::Thread* thread = rtc::Thread::Current();
+        thread->ProcessMessages(0);
+    });
+    processSocket.start(50);
+```
