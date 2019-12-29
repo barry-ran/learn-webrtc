@@ -22,10 +22,14 @@ public:
 
 private Q_SLOTS:
     void on_normalThreadBtn_clicked();
+    void on_taskThreadBtn_clicked();
+
+    void on_postTaskBtn_clicked();
 
 private:
     Ui::Widget *ui;
 
     std::unique_ptr<rtc::Thread> m_normalThread;
+    std::unique_ptr<rtc::Thread> m_taskThread;
 };
 #endif // WIDGET_H
