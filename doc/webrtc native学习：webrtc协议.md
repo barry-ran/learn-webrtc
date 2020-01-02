@@ -30,6 +30,9 @@ NAT的会话穿越功能[Session Traversal Utilities for NAT (STUN)](http://en.w
 客户端通过给公网的STUN服务器发送请求获得自己的公网地址信息，以及是否能够被（穿过路由器）访问。
 ![](image/webrtc-stun.png)
 
+[STUN详细描述-RFC3489 STUN](https://datatracker.ietf.org/doc/rfc3489/)
+[STUN详细描述-RFC5389 STUN](https://datatracker.ietf.org/doc/rfc5389/)
+
 # TURN
 一些路由器使用一种“对称型NAT”的NAT模型。这意味着路由器只接受和对端先前建立的连接（就是下一次请求建立新的连接映射）。
 
@@ -54,11 +57,13 @@ SRTP，即安全实时传输协议([Secure Real-time Transport Protocol](https:/
 # 总结
 webrtc是基于p2p的，由于NAT的存在，两个peer想要建立连接需要基于ICE框架，ICE中建立两个peer的连接主要基于STUN、TURN等协议。
 
-webrtc建立连接后，音视频传输和DataChannel传输数据都是基于UDP协议，但是UDP是不安全的，不可靠的，所以加了一层DTLS来加密保证安全，DataChannel数据传输要求可靠性，所以使用SCTP来保证数据可靠；音视频数据不要求可靠，但是需要使用安全实时传输协议SRTP对音视频进行加密。
+webrtc建立连接后，音视频传输和DataChannel传输数据都是基于UDP协议，但是UDP是不安全的，不可靠的，所以加了一层DTLS来加密保证安全，DataChannel数据传输要求可靠性，所以使用SCTP来保证数据可靠；音视频数据不要求完全完整，但是需要使用安全实时传输协议SRTP对音视频进行加密。
 
 webrtc的信令协议一般是基于TCP的，为了保证安全，一般加一层TLS。实际应用场景中，一般使用更上层的协议，例如http/https/websocket等。
 
 ## 对于音视频数据，是有DTLS和SRTP两层加密吗？为什么不能仅仅是DTLS+RTP？它们是如何协作的？
+DTLS和SRTP不是单纯的两层加密，它们是配合在一起的，叫做DTLS-SRTP，实际是通过DTLS握手交换获得密钥，然后用SRTP使用该密钥进行加密解密。
+
 [参考文档一](https://www.jianshu.com/p/50605466c039)
 
 [参考文档二](https://www.cnblogs.com/lanyuliuyun/p/8289306.html)
