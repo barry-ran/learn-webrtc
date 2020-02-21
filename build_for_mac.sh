@@ -103,7 +103,7 @@ if [ $? != 0 ]; then
 fi
 
 # 恢复当前目录
-$old_cd
+cd $old_cd
 
 echo
 echo
