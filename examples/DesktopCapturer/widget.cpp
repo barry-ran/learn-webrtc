@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QFile>
+#include <QImage>
 
 #include "widget.h"
 #include "ui_widget.h"
@@ -31,7 +32,7 @@ Widget::Widget(QWidget *parent) :
     webrtc::DesktopCaptureOptions options = webrtc::DesktopCaptureOptions::CreateDefault();
     // magnification和directx只有ScreenCapturer才支持，windowCapturer只有gdi一种方式
     //options.set_allow_use_magnification_api(true);
-    //options.set_allow_directx_capturer(true);
+    options.set_allow_directx_capturer(true);
     screen_capturer_ = webrtc::DesktopCapturer::CreateScreenCapturer(options);
     RTC_DCHECK(screen_capturer_);
     screen_capturer_->Start(this);
@@ -86,34 +87,54 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
 
         Q_EMIT recvFrame();
 #if 0
-        std::string filename("d:/capture_screen_");
-        filename += std::to_string(width);
-        filename += "x";
-        filename += std::to_string(height);
-        filename += ".yuv";
-        QFile file(filename.c_str());
-        //已读写方式打开文件，
-        //如果文件不存在会自动创建文件
-        if(file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            // Stride是对齐之后的宽度，是大于等于宽度的，保存文件不需要保存对齐后多出的内容
-            file.write((char*)i420_buffer_->MutableDataY(), width * height);
-            // u/v数据量是y的1/4(一帧YUV大小是width * height * 1.5)
-            file.write((char*)i420_buffer_->MutableDataU(), (width * height) >> 2);
-            file.write((char*)i420_buffer_->MutableDataV(), (width * height) >> 2);
-            //关闭文件
-            file.close();
-        }
+        static int jpgCount = 0;
+        std::string filename("d:/desktop_capture_");
+        filename += std::to_string(jpgCount++);
+        filename += ".jpg";
+        QImage tmpImg(frame->data(),
+                      frame->size().width(),
+                      frame->size().height(),
+                      QImage::Format_RGB32);
+        tmpImg.save(filename.c_str());
 #endif
 
 #if 0
+        std::string filename("d:/desktop_capture_");
+
+        // rgba frame use frame->size()
+        std::string rgbaFileName = filename;
+        rgbaFileName += std::to_string(frame->size().width());
+        rgbaFileName += "x";
+        rgbaFileName += std::to_string(frame->size().height());
+        rgbaFileName += ".rgba";
+
         // save rgba
-        QFile file("test.rgba");
+        QFile rgbaFile(rgbaFileName.c_str());
         //已读写方式打开文件，
         //如果文件不存在会自动创建文件
-        if(file.open(QIODevice::WriteOnly | QIODevice::Append)){
-            file.write((char*)frame->data(), frame->size().width() * frame->size().height() * 4);
+        if(rgbaFile.open(QIODevice::WriteOnly | QIODevice::Append)){
+            rgbaFile.write((char*)frame->data(), frame->size().width() * frame->size().height() * 4);
             //关闭文件
-            file.close();
+            rgbaFile.close();
+        }
+
+        // yuv frame use width height
+        std::string yuvFileName = filename;
+        yuvFileName += std::to_string(width);
+        yuvFileName += "x";
+        yuvFileName += std::to_string(height);
+        yuvFileName += ".yuv";
+        QFile yuvFile(yuvFileName.c_str());
+        //已读写方式打开文件，
+        //如果文件不存在会自动创建文件
+        if(yuvFile.open(QIODevice::WriteOnly | QIODevice::Append)){
+            // Stride是对齐之后的宽度，是大于等于宽度的，保存文件不需要保存对齐后多出的内容
+            yuvFile.write((char*)i420_buffer_->MutableDataY(), width * height);
+            // u/v数据量是y的1/4(一帧YUV大小是width * height * 1.5)
+            yuvFile.write((char*)i420_buffer_->MutableDataU(), (width * height) >> 2);
+            yuvFile.write((char*)i420_buffer_->MutableDataV(), (width * height) >> 2);
+            //关闭文件
+            yuvFile.close();
         }
 #endif
     }

@@ -39,7 +39,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-include($$PWD/webrtc_common.pri)
+include($$PWD/../webrtc_common/webrtc_common.pri)
 include($$PWD/render/render.pri)
 
 INCLUDEPATH += \

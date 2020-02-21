@@ -17,36 +17,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    main_wnd.cpp \
-    defaults.cc \
-    peer_connection_client.cc \
-    conductor.cc \
-    videorenderer.cpp
+    widget.cpp
 
 HEADERS += \
-    main_wnd.h \
-    flag_defs.h \
-    defaults.h \
-    peer_connection_client.h \
-    conductor.h \
-    videorenderer.h
+    widget.h
 
 FORMS += \
-    mainwnd.ui
+    widget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-include($$PWD/../../webrtc_common/webrtc_common.pri)
-include($$PWD/test/test.pri)
-include($$PWD/render/render.pri)
-
-INCLUDEPATH += \
-            $$PWD/test \
-            $$PWD/render
-
-macos {
-    QMAKE_INFO_PLIST = $$PWD/Info.plist
-}
+include($$PWD/../webrtc_common/webrtc_common.pri)
