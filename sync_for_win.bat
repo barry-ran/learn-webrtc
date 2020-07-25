@@ -91,7 +91,7 @@ cd %webrtc_path%
 if not exist %webrtc_src_path% (
     call fetch --nohooks webrtc
 )
-call gclient sync --force
+call gclient sync --force --with_branch_heads --with_tags -D
 
 if not %ERRORLEVEL% == 0 (
     echo webrtc同步失败
@@ -99,13 +99,13 @@ if not %ERRORLEVEL% == 0 (
 )
 
 cd %webrtc_src_path%
-:: webrtc最新release https://webrtc.org/release-notes/
+:: webrtc最新release https://chromiumdash.appspot.com/branches
 :: 使用release m76学习
 call git checkout -b branch-heads/m76 refs/remotes/branch-heads/m76
 
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
-call gclient sync
+call gclient sync --with_branch_heads --with_tags -D
 
 if not %ERRORLEVEL% == 0 (
     echo webrtc同步失败

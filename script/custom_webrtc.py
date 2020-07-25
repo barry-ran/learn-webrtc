@@ -1,13 +1,21 @@
 def dynamic_crt():
     with open(r'build\config\win\BUILD.gn', 'r+') as f1:
         infos = f1.readlines()
-        if -1 == infos[404].find('configs = [ ":static_crt" ]'):
+        find = False
+        count = 0
+        for info in infos:
+            count += 1
+            if -1 == info.find('configs = [ ":static_crt" ]'):
+                continue
+            infos[count-1] = info.replace('configs = [ ":static_crt" ]', 'configs = [ ":dynamic_crt" ]')
+            print 'replace static_crt with dynamic_crt'
+            find = True
+            break
+
+        if not find:
             print 'not find configs = [ ":static_crt" ]'
             return False
-              
-        line = infos[404].replace('configs = [ ":static_crt" ]', 'configs = [ ":dynamic_crt" ]')
-        infos[404] = line
-
+        
         f1.seek(0, 0)        
         f1.writelines(infos)
         return True
