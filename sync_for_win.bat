@@ -100,8 +100,8 @@ if not %ERRORLEVEL% == 0 (
 
 cd %webrtc_src_path%
 :: webrtc最新release https://chromiumdash.appspot.com/branches
-:: 使用release m76学习
-call git checkout -b branch-heads/m76 refs/remotes/branch-heads/m76
+:: 使用release m85
+call git checkout -b branch-heads/m85 refs/remotes/branch-heads/4183
 
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
