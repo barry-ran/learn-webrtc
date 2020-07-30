@@ -44,8 +44,8 @@ if __name__ == '__main__':
         exit(1)
     
     # this bug https://groups.google.com/forum/#!searchin/discuss-webrtc/$26capture_checker_$20iscurrent|sort:date/discuss-webrtc/HBzGZXL-FvM/SG2TSnaoBAAJ
-    if not remove_capture_checker():
-        print 'remove_capture_checker failed'
-        exit(1)
+    # if not remove_capture_checker():
+        # print 'remove_capture_checker failed'
+        # exit(1)
     
     exit(0)

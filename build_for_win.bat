@@ -114,7 +114,8 @@ set args=%args% proprietary_codecs=true
 :: m76 not need
 ::set args=%args% ffmpeg_branding=\"Chrome\"
 
-set args=%args% is_win_fastlink=true
+:: m85 not need
+:: set args=%args% is_win_fastlink=true
 set args=%args% use_lld=false
 set args=%args% is_clang=false
 set args=%args% use_rtti=false
