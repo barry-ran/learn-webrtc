@@ -49,6 +49,12 @@ Sink一般的使用流程如下（渲染视频数据为例）：
 ## Receiver 
 
 ## Transceiver
+transceiver收发器在peerconnection中承接了控制数据收发的功能，内部关联了ChannelInterface与RtpSenderInternal和RtpReceiverInternal。其中channel相关模块负责维护数据收发的业务流程，以视频发送为例，其中Stream相关模块用于视频编码和实现rtp/rtcp相关功能，最终打包后的数据由BaseChannel内的tramsport模块实现视频发送
+
+## RtpTransceiver
+RtpTransceiver实现RtpTransceiverInterface，用于实现PeerConnection中Unified Plan SDP所指定的通用功能。其主要用于PeerConnection中维护RtpSenders, RtpReceivers和BaseChannels，同时其设计兼容B SDP。这里Unified Plan SDP中 m= section  指定维护一个sender和一个receiver，Plan B SDP中会维护多个sender和receiver，用a=ssrc区分。这里BaseChannel的生命周期是由ChannelManager管理的，RtpTransceiver中只保持对其指针的使用。对于音频或者视频数据的收发，分别通过AudioRtpSenders, AudioRtpReceivers和VoiceChannel 与 VideoRtpSenders, VideoRtpReceivers,VideoChannel实现
+
+## Channel
 
 ## PeerConnection
 它表示一个P2P连接其中的一端(Peer)。
