@@ -32,7 +32,7 @@ Widget::Widget(QWidget *parent) :
     webrtc::DesktopCaptureOptions options = webrtc::DesktopCaptureOptions::CreateDefault();
     // magnification和directx只有ScreenCapturer才支持，windowCapturer只有gdi一种方式
     //options.set_allow_use_magnification_api(true);
-    options.set_allow_directx_capturer(true);
+    //options.set_allow_directx_capturer(true);
     screen_capturer_ = webrtc::DesktopCapturer::CreateScreenCapturer(options);
     RTC_DCHECK(screen_capturer_);
     screen_capturer_->Start(this);
