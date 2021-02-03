@@ -58,7 +58,7 @@ Widget::~Widget()
 void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique_ptr<webrtc::DesktopFrame> frame)
 {
     // step.3 处理回调视频帧
-    qDebug() << "result: " << (int)result;    
+    qDebug() << "result: " << (int)result;
     if (webrtc::DesktopCapturer::Result::SUCCESS == result) {
         QMutexLocker locker(&mutex_);
         int width = frame->size().width();
@@ -128,6 +128,22 @@ void Widget::OnCaptureResult(webrtc::DesktopCapturer::Result result, std::unique
         //已读写方式打开文件，
         //如果文件不存在会自动创建文件
         if(yuvFile.open(QIODevice::WriteOnly | QIODevice::Append)){
+            // I420是平面格式 https://juejin.cn/post/6844904063658639373
+
+            // 打包格式yuv交叉存储
+            /*
+            for (int i=0; i<height; i++){
+                yuvFile.write((char*)i420_buffer_->MutableDataY()+i*i420_buffer_->StrideY(), width);
+            }
+            for (int i=0; i<(height+1)/2; i++){
+                yuvFile.write((char*)i420_buffer_->MutableDataU()+i*i420_buffer_->StrideU(), (width+1)/2);
+            }
+            for (int i=0; i<(height+1)/2; i++){
+                yuvFile.write((char*)i420_buffer_->MutableDataV()+i*i420_buffer_->StrideV(), (width+1)/2);
+            }
+            */
+
+            // 平面格式，yuv分三个平面（数组）存储
             // Stride是对齐之后的宽度，是大于等于宽度的，保存文件不需要保存对齐后多出的内容
             yuvFile.write((char*)i420_buffer_->MutableDataY(), width * height);
             // u/v数据量是y的1/4(一帧YUV大小是width * height * 1.5)
