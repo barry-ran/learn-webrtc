@@ -13,40 +13,45 @@
 [![界面][pc1-image]](https://github.com/barry-ran/learn_webrtc/tree/master/examples/peerconnection/pc1)
 
 # 环境要求
-## win
 - 可以科学上网（首要前提）
 - git
-- vs2017（安装时手动选择ATL、MFC和Windows 10 SDK(10.0.17134.0)）
+
+## mac
+xcode
+
+## win
+- vs2019 C++开发环境（Windows 10 SDK(10.0.20348.0)）
 
     也可以给安装包指定命令行参数来安装(vs.exe为vs安装包，在这里[下载](https://visualstudio.microsoft.com/zh-hans/downloads/))
     ```
-    vs.exe --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.VC.ATLMFC --add Microsoft.VisualStudio.Component.Windows10SDK.17134 --includeRecommended
+    vs.exe --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.VC.ATLMFC --add Microsoft.VisualStudio.Component.Windows10SDK.20348 --includeRecommended
 
     ```
 
     注意：
-    - Windows 10 SDK必须安装10.0.17134.0版本，webrtc编译工具链里强制要求，不过webrtc也有计划移除版本要求 # TODO(crbug.com/773476): remove version requirement.
+    - Windows 10 SDK建议最新版本
     - win10 sdk需要安装了Debugging Tools For Windows(必须的，编译要求)，没有安装的话
 
         进入 控制面板\程序\程序和功能，选择Windows Software Development Kit，右键更改，选择Change，勾选Debugging Tools For Windows，点击Change    
 
 # 编译步骤
 ## win
+- 设置vs2019_install环境变量
+    ```
+    set vs2019_install=D:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+    ```
 - 执行syc_for_win.bat同步webrtc代码(开发过程只需同步一次即可)
-- 执行build_for_win.bat编译
+- 执行build_for_win.bat release编译
 
-# TODO
-- 窗口采集windows crash
-- peerconnection client mac
-- OpenCamera 相关类梳理
-- 录制视频
-- 其他js demo
+# 参考文档
+- [webrtc官方编译说明](https://webrtc.github.io/webrtc-org/native-code/development/)
+- [chromium编译官方说明](https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md)
 
 # F&Q
 - ~~MAC下编译出的AppRTCMobile运行失败~~ 用的72分支，改为m76就没问题了
 - peerconnection client为什么没有mac的？[PeerConnectionFactory::CreateVideoSource 不支持mac？](https://groups.google.com/forum/#!searchin/discuss-webrtc/mac$20peerconnection%7Csort:date/discuss-webrtc/ebLVdsXdU-g/Ot-80bZQAgAJ)
 
-# 坑
+# 遇到过的编译问题
 即使现在同步编译脚本没有问题了，也有可能过段时间编译不过了，因为depot_tools、src/build等都有可能更新导致编译不过
 
 （官方说可以用老版本的depot_tools不知道是否可行，待验证）

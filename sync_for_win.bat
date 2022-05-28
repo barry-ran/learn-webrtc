@@ -26,46 +26,10 @@ if not %ERRORLEVEL% == 0 (
 :: 环境变量设置
 set PATH=%depot_tools_path%;%PATH%
 
-set GYP_GENERATORS=ninja
-set GYP_MSVS_VERSION=2017
+:: https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md
+set GYP_MSVS_VERSION=2019
+:: 使用本地vs
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
-
-:: 查找vcvarsall.bat路径
-for /f "tokens=* delims=" %%o in ('call python script/find_vcvarsall_path.py') do (
-    set vcvarsall=%%o
-)
-echo vcvarsall路径=%vcvarsall%
-if "%vcvarsall%" == "" (
-    echo 未找到vcvarsall路径    
-    goto return
-)
-
-:: 注册vc环境
-set cpu_mode=x86
-if /i %cpu_mode% == x86 (
-    call "%vcvarsall%" %cpu_mode%
-) else (
-    call "%vcvarsall%" %cpu_mode%
-)
-
-if not %errorlevel%==0 (
-    echo "vcvarsall 注册失败"
-    goto return
-)
-
-:: 后面gclient sync需要这几个环境变量
-:: 查找vs路径，通过for将call的结果保存到变量GYP_MSVS_OVERRIDE_PATH
-for /f "tokens=* delims=" %%o in ('call python script/find_vs_path.py') do (
-    set GYP_MSVS_OVERRIDE_PATH=%%o
-)
-echo vs路径=%GYP_MSVS_OVERRIDE_PATH%
-if "%GYP_MSVS_OVERRIDE_PATH%" == "" (
-    echo 未找到vs路径    
-    goto return
-)
-
-:: fix: No supported Visual Studio can be found
-set vs2017_install=%GYP_MSVS_OVERRIDE_PATH%
 
 echo=
 echo ---------------------------------------------------------------
@@ -100,8 +64,8 @@ if not %ERRORLEVEL% == 0 (
 
 cd %webrtc_src_path%
 :: webrtc最新release https://chromiumdash.appspot.com/branches
-:: 使用release m85
-call git checkout -b branch-heads/m85 refs/remotes/branch-heads/4183
+:: 使用release m98
+call git checkout -b branch-heads/m98 refs/remotes/branch-heads/4758
 
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
