@@ -1,0 +1,31 @@
+name: 'Tar required WebRTC header files.'
+description: 'Tar required WebRTC header files to be used by your application.'
+inputs:
+  srcdir:
+    description: 'The source dir where the WebRTC library has been checked out.'
+    required: true
+  exclude:
+    description: 'The paths to exclude from header copying'
+    required: true
+    default: out ios sdk examples test build buildtools third_party/blink third_party/llvm-build third_party/win_build_output third_party/android_ndk third_party/catapult third_party/googletest third_party/android_deps third_party/android_sdk third_party/crashpad third_party/perfetto third_party/hunspell third_party/icu third_party/khronos
+outputs:
+  tarball:
+    description: "Path to generated tarball."
+    value: ${{ steps.tar-headers.outputs.tarball }}
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      id: tar-headers
+      working-directory: "${{ inputs.srcdir }}"
+      run: |
+        set -x
+
+        for p in ${{ inputs.exclude }}
+        do
+          EXCLUDE="$EXCLUDE -path ./${p} -prune -o"
+        done
+
+        TAR_FILE=headers.tar
+        find . $EXCLUDE -type f -a \( -name "*.h" -o -name LICENSE -o -name COPYING \) -print -exec tar -rf $TAR_FILE "{}" \;
+        echo "::set-output name=tarball::${TAR_FILE}"

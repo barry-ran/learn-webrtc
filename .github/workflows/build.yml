@@ -1,0 +1,267 @@
+name: Builds matrix
+on: [workflow_dispatch]
+
+# Global Settings
+env:
+  WEBRTC_BRANCH: branch-heads/4758
+  WEBRTC_URL: https://chromium.googlesource.com/external/webrtc
+  MSVC_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
+
+jobs:
+  config:
+    name: "Find git revision"
+    runs-on: "ubuntu-20.04"
+    outputs:
+      revision: ${{ steps.config.outputs.revision }}
+      name: ${{ steps.config.outputs.name }}
+    steps:
+      - name: Configure shared properties.
+        id: config
+        shell: bash
+        run: |
+          REVISION=$(git ls-remote $WEBRTC_URL --heads $WEBRTC_BRANCH | head -n 1 | cut -f 1)
+          INTERNAL=$(curl --silent ${WEBRTC_URL}/+/${REVISION}?format=TEXT | base64 -d | tail -1 | egrep -o '{#([0-9]+)}' | tr -d '{}#' | cut -c1-7)
+          NAME="webrtc-${INTERNAL}-${REVISION:0:7}"
+
+          echo "Repository: ${WEBRTC_URL}"
+          echo "Branch: ${WEBRTC_BRANCH}"
+          echo "Revision: ${REVISION}"
+          echo "Internal revision: ${INTERNAL}"
+          echo "Output: ${NAME}"
+
+          echo "::set-output name=revision::${REVISION}"
+          echo "::set-output name=name::${NAME}"
+
+  build:
+    name: "Build"
+    needs: config
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Android
+          - target_os: android
+            arch: arm
+            custom_gnargs: use_custom_libcxx=false
+            gclient_os: '["android", "unix"]'
+            os: ubuntu-20.04
+          - target_os: android
+            arch: arm64
+            custom_gnargs: use_custom_libcxx=false
+            gclient_os: '["android", "unix"]'
+            os: ubuntu-20.04
+          - target_os: android
+            arch: x86
+            custom_gnargs: use_custom_libcxx=false
+            gclient_os: '["android", "unix"]'
+            os: ubuntu-20.04
+          - target_os: android
+            arch: x64
+            custom_gnargs: use_custom_libcxx=false
+            gclient_os: '["android", "unix"]'
+            os: ubuntu-20.04
+
+          # iOS
+          - target_os: ios
+            arch: arm
+            custom_gnargs: use_custom_libcxx=false ios_enable_code_signing=false
+            gclient_os: '["ios", "mac"]'
+            os: macos-latest
+          - target_os: ios
+            arch: arm64
+            custom_gnargs: use_custom_libcxx=false ios_enable_code_signing=false
+            gclient_os: '["ios", "mac"]'
+            os: macos-latest
+          - target_os: ios
+            arch: x64
+            custom_gnargs: use_custom_libcxx=false ios_enable_code_signing=false
+            gclient_os: '["ios", "mac"]'
+            os: macos-latest
+
+          # Linux
+          - target_os: linux
+            arch: x86
+            custom_gnargs: use_custom_libcxx=false use_glib=false
+            gclient_os: '["linux"]'
+            os: ubuntu-20.04
+          - target_os: linux
+            arch: x64
+            custom_gnargs: use_custom_libcxx=false use_glib=false
+            gclient_os: '["linux"]'
+            os: ubuntu-20.04
+
+          # macOS
+          - target_os: mac
+            arch: arm64
+            custom_gnargs: use_custom_libcxx=false
+            gclient_os: '["mac"]'
+            os: macos-latest
+          - target_os: mac
+            arch: x64
+            custom_gnargs: use_custom_libcxx=false
+            gclient_os: '["mac"]'
+            os: macos-latest
+
+          # Windows
+          - target_os: win
+            arch: x86
+            # Windows 32 goes out memory when building libaom release. Disable libaom.
+            custom_gnargs: is_clang=false enable_iterator_debugging=true enable_libaom=false
+            gclient_os: '["win"]'
+            msvc_arch: amd64_x86
+            os: windows-2019
+          - target_os: win
+            arch: x64
+            custom_gnargs: is_clang=false enable_iterator_debugging=true
+            gclient_os: '["win"]'
+            msvc_arch: amd64_x86
+            os: windows-2019
+
+    env:
+      DEPOT_TOOLS: ${{ github.workspace }}/depot_tools
+      DEPOT_TOOLS_WIN_TOOLCHAIN: 0
+      GNARGS: 'is_component_build=false rtc_include_tests=false treat_warnings_as_errors=false rtc_build_examples=false use_rtti=true target_os=\"${{ matrix.target_os }}\" target_cpu=\"${{ matrix.arch }}\" ${{ matrix.custom_gnargs }}'
+      GNARGS_RELEASE: "is_debug=false strip_debug_info=true symbol_level=0"
+      OUTPUT_NAME: ${{ needs.config.outputs.name }}-${{ matrix.target_os }}-${{ matrix.arch }}
+      TEMP_ARTIFACT: ${{ github.job }}-${{ matrix.target_os }}-${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup MSVC environment
+        if: ${{ matrix.target_os == 'win' }}
+        shell: bash
+        run: |
+          '${{ env.MSVC_PATH }}\Auxiliary\Build\vcvarsall.bat' ${{ matrix.msvc_arch }}
+          MSVC_TOOLS=$(find '${{ env.MSVC_PATH }}\Tools\MSVC' -maxdepth 1 -type d | sort -r | head -n 1)
+          echo ${MSVC_TOOLS}'\bin\Hostx64\x64\' >> $GITHUB_PATH
+
+      - name: Install Linux dependencies
+        if: ${{ matrix.target_os == 'linux' }}
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get install clang gcc gcc-multilib g++ g++-multilib
+
+      - name: Install depot tools
+        shell: bash
+        run: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $DEPOT_TOOLS
+          echo $DEPOT_TOOLS >> $GITHUB_PATH
+
+      # We should always be explicit with our flags usage here since it's gonna be sure to always set those flags
+      - name: Setup gclient build config
+        shell: bash
+        run: |
+          # Create config
+          mkdir out
+          cp gclient out/.gclient
+          echo 'target_os = ${{ matrix.gclient_os }}' >> out/.gclient
+
+      - name: Checkout WebRTC and run hooks
+        shell: bash
+        working-directory: out
+        run: |
+          gclient sync --no_bootstrap --shallow --no-history -vv --revision ${{ needs.config.outputs.revision }}
+
+      - name: Patch the WebRTC sources (allow dynamic crt on windows)
+        if: ${{ matrix.target_os == 'win' }}
+        shell: bash
+        working-directory: out
+        run: |
+          sed -i 's|:static_crt|:dynamic_crt|' src/build/config/win/BUILD.gn
+          cat src/build/config/win/BUILD.gn
+
+      - name: Tar headers
+        id: tar-headers
+        uses: ./.github/actions/tar_headers
+        with:
+          srcdir: out/src
+
+      - name: Upload header artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.TEMP_ARTIFACT }}-headers
+          path: out/src/${{ steps.tar-headers.outputs.tarball }}
+          retention-days: 1
+
+      - name: Build - Debug
+        shell: bash
+        working-directory: out/src
+        run: |
+          gn gen out --args="${{ env.GNARGS }}"
+          ninja -v -C out webrtc
+
+      - name: Combine - Debug
+        uses: ./.github/actions/combine_library
+        id: combine-debug
+        with:
+          platform: ${{ matrix.target_os }}
+          builddir: out/src/out
+
+      - name: Upload debug artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.TEMP_ARTIFACT }}-debug
+          path: out/src/out/${{ steps.combine-debug.outputs.library }}
+          retention-days: 1
+
+      # Release
+      - name: Build - Release
+        shell: bash
+        working-directory: out/src
+        run: |
+          echo "Clean up debug build to free up space"
+          rm -rf out
+          gn gen out --args="${{ env.GNARGS }} ${{ env.GNARGS_RELEASE }}"
+          ninja -v -C out webrtc
+
+      - name: Combine - Release
+        uses: ./.github/actions/combine_library
+        id: combine-release
+        with:
+          platform: ${{ matrix.target_os }}
+          builddir: out/src/out
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.TEMP_ARTIFACT }}-release
+          path: out/src/out/${{ steps.combine-release.outputs.library }}
+          retention-days: 1
+
+      - name: Cleanup space
+        shell: bash
+        run: |
+          rm -rf out
+
+      - name: Download library artifact - Debug
+        uses: actions/download-artifact@v2
+        with:
+          path: ${{ matrix.target_os }}/lib/${{ matrix.arch }}/Debug
+          name: ${{ env.TEMP_ARTIFACT }}-debug
+
+      - name: Download library artifact - Release
+        uses: actions/download-artifact@v2
+        with:
+          path: ${{ matrix.target_os }}/lib/${{ matrix.arch }}/Release
+          name: ${{ env.TEMP_ARTIFACT }}-release
+
+      - name: Download includes
+        uses: actions/download-artifact@v2
+        with:
+          path: ${{ matrix.target_os }}
+          name: ${{ env.TEMP_ARTIFACT }}-headers
+
+      - name: Pack full release artifact
+        working-directory: ${{ matrix.target_os }}
+        shell: bash
+        run: |
+          mkdir include
+          tar -xf ${{ steps.tar-headers.outputs.tarball }} -C include
+          tar -czf $OUTPUT_NAME.tar.gz include lib
+
+      - name: Upload final artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.OUTPUT_NAME }}.tar.gz
+          path: ${{ matrix.target_os }}/${{ env.OUTPUT_NAME }}.tar.gz

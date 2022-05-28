@@ -1,0 +1,65 @@
+name: 'Combine libraries'
+description: 'Combine the WebRTC static libraries into one using platform specific tools.'
+inputs:
+  platform:
+    description: 'The platform we are building for (android, ios, linux, mac, win).'
+    required: true
+  builddir:
+    description: 'The the ninja build path.'
+    required: true
+  allowlist:
+    description: 'The libraries to copy objects from'
+    required: true
+    default: "webrtc boringssl protobuf_lite field_trial_default metrics_default"
+outputs:
+  library:
+    description: "Path to generated library."
+    value: ${{ steps.combine.outputs.library }}
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      working-directory: ${{ inputs.builddir }}
+      id: combine
+      run: |
+        set -x
+
+        # Detect library extension.
+        platform=${{ inputs.platform }}
+        libext="a"
+        if [ "${platform}" = "win" ]; then
+          libext="lib"
+        fi
+        libname=libwebrtc_full.${libext}
+
+        # Library allowlist filter
+        allowlist=$(echo ${{ inputs.allowlist }}\\.${libext} | sed "s/ /\\\\.${libext}|/g")
+
+        LIBS=$(cat .ninja_log | tr '\t' '\n' | grep -E "^obj/" | grep -E $allowlist | sort -u)
+        # Combine libraries based on platform-specific tools
+        case $platform in
+        win)
+          echo $LIBS | tr ' ' '\n' >$libname.list
+          # LIB.exe from Microsoft C++ Toolset
+          lib.exe /OUT:$libname @$libname.list
+          ;;
+        mac|ios)
+          # libtool from XCode Command line tools
+          libtool -static -o $libname $LIBS
+          ;;
+        *)
+          # GNU ar + runlib
+          echo "CREATE $libname" >$libname.ar
+          for lib in $LIBS
+          do
+            echo "ADDLIB $lib" >>$libname.ar
+          done
+          echo "SAVE" >>$libname.ar
+          echo "END" >>$libname.ar
+          ar -M < $libname.ar
+          ranlib $libname
+          ;;
+        esac
+
+        ls -l
+        echo "::set-output name=library::${libname}"
