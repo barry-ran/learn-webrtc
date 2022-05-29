@@ -45,7 +45,7 @@ export PATH=$depot_tools_path:$PATH
 
 # 设置相关路径
 gn=gn
-ninja=ninja
+ninja=autoninja
 dispatch_path=$script_path/out
 if [ $debug_mode == "true" ]; then
     dispatch_path=$script_path/out/debug
@@ -70,18 +70,24 @@ args=$args" target_cpu=\"x64\""
 # 开启H264编码支持
 args=$args" proprietary_codecs=true"
 args=$args" ffmpeg_branding=\"Chrome\""
-# 必须要打开，否则报错SetSessionDescriptionObserver未定义 https://groups.google.com/forum/#!topic/discuss-webrtc/PniiO9BumHA
-args=$args" use_rtti=true" 
 
-args=$args" use_sysroot=false"
+# 必须要打开，否则报错SetSessionDescriptionObserver未定义 https://groups.google.com/forum/#!topic/discuss-webrtc/PniiO9BumHA
+args=$args" use_rtti=true"
 args=$args" treat_warnings_as_errors=false"
-args=$args" use_custom_libcxx=false"
-args=$args" use_custom_libcxx_for_host=false"
 args=$args" rtc_include_pulse_audio=false"
 args=$args" rtc_build_examples=true"
 args=$args" rtc_build_tools=false"
 args=$args" rtc_enable_protobuf=false"
 args=$args" rtc_include_tests=false"
+args=$args" enable_libaom=false"
+args=$args" enable_google_benchmarks=false"
+args=$args" libyuv_include_tests=false"
+args=$args" symbol_level=0"
+args=$args" strip_debug_info=true"
+
+args=$args" use_sysroot=false"
+args=$args" use_custom_libcxx=false"
+args=$args" use_custom_libcxx_for_host=false"
 
 $gn gen $dispatch_path --ide=xcode --args="$args"
 if [ $? != 0 ]; then

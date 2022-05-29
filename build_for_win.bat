@@ -73,22 +73,33 @@ set args=%args% target_cpu=\"x86\"
 
 :: 开启H264编码支持
 set args=%args% proprietary_codecs=true
+set args=%args% ffmpeg_branding=\"Chrome\"
 
-:: m98 不能用这两个
-:: set args=%args% use_lld=false
-:: set args=%args% is_clang=false
-set args=%args% use_rtti=false
+set args=%args% use_rtti=true
+set args=%args% treat_warnings_as_errors=true
+set args=%args% rtc_include_pulse_audio=false
 set args=%args% rtc_build_examples=true
 set args=%args% rtc_build_tools=false
 set args=%args% rtc_enable_protobuf=false
 set args=%args% rtc_include_tests=false
+set args=%args% enable_libaom=false
+set args=%args% enable_google_benchmarks=false
+set args=%args% libyuv_include_tests=false
+set args=%args% symbol_level=0
+set args=%args% strip_debug_info=true
+
+:: m98 不能用这两个
+:: set args=%args% use_lld=false
+:: set args=%args% is_clang=false
+:: 分析包体积时使用
+::set args=%args% generate_linker_map=true
 
 if /i %debug_mode% == "true" (
     set args=%args% enable_iterator_debugging=true
 )
 :: 查看支持的编译参数
-:: gn gen out/temp
-:: gn args out/temp --list
+:: gn args ./args
+:: gn args ./args --list
 call %gn% gen %dispatch_path% --ide=vs2019 --args="%args%"
 
 if not %errorlevel%==0 (

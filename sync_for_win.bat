@@ -64,8 +64,7 @@ if not %ERRORLEVEL% == 0 (
 
 cd %webrtc_src_path%
 :: webrtc最新release https://chromiumdash.appspot.com/branches
-:: 使用release m98
-call git checkout -b branch-heads/m98 refs/remotes/branch-heads/4758
+call git checkout refs/remotes/branch-heads/4472
 
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具

@@ -3,7 +3,7 @@ on: [workflow_dispatch]
 
 # Global Settings
 env:
-  WEBRTC_BRANCH: branch-heads/4758
+  WEBRTC_BRANCH: branch-heads/4472
   WEBRTC_URL: https://chromium.googlesource.com/external/webrtc
   MSVC_PATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC'
 
