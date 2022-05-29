@@ -77,7 +77,9 @@ macos {
         -framework AppKit \
         -framework CoreMedia \
         -framework AVFoundation \
-        -framework CoreVideo
+        -framework CoreVideo \
+        -framework CoreAudio \
+        -framework AudioToolbox
 
     LIBS += \
         -L$$PWD/../../out/$$BUILD_MODE/obj/sdk -lvideocapture_objc \
