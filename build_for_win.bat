@@ -88,9 +88,8 @@ set args=%args% libyuv_include_tests=false
 set args=%args% symbol_level=0
 set args=%args% strip_debug_info=true
 
-:: m98 不能用这两个
-:: set args=%args% use_lld=false
-:: set args=%args% is_clang=false
+set args=%args% use_lld=false
+set args=%args% is_clang=false
 :: 分析包体积时使用
 ::set args=%args% generate_linker_map=true
 

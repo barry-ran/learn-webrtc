@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "conductor.h"
-#include "flag_defs.h"
 #include "main_wnd.h"
 #include "peer_connection_client.h"
 #include "rtc_base/checks.h"
@@ -33,7 +32,7 @@ int main(int argc, char *argv[])
 #endif
     QApplication a(argc, argv);
 
-    MainWnd wnd(FLAG_server, FLAG_port);
+    MainWnd wnd("", 0);
     if (!wnd.Create()) {
         RTC_NOTREACHED();
         return -1;
