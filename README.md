@@ -20,7 +20,15 @@
 xcode
 
 ## win
-- vs2019 C++开发环境（Windows 10 SDK(10.0.20348.0)）
+
+### error msvc编译总是失败
+m99 webrtc 4844以后不支持msvc编译器了
+[webrtc支持的平台](https://webrtc.googlesource.com/src/+/4c29ca654b1100906943ea08b996f4265bc50d9a/g3doc/supported-platforms-and-compilers.md)
+[msvc编译器的讨论](https://bugs.chromium.org/p/webrtc/issues/detail?id=14009)
+
+
+
+- vs2012 C++开发环境（Windows 10 SDK(10.0.22621.0)）
 
     也可以给安装包指定命令行参数来安装(vs.exe为vs安装包，在这里[下载](https://visualstudio.microsoft.com/zh-hans/downloads/))
     ```
@@ -36,9 +44,9 @@ xcode
 
 # 编译步骤
 ## win
-- 设置vs2019_install环境变量
+- 设置vs2022_install环境变量
     ```
-    set vs2019_install=D:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+    set vs2022_install=C:\Program Files\Microsoft Visual Studio\2022\Community
     ```
 - 执行syc_for_win.bat同步webrtc代码(开发过程只需同步一次即可)
 - 执行build_for_win.bat release编译

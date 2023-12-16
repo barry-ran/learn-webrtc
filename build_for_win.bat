@@ -42,7 +42,7 @@ if /i %debug_mode% == "true" (
 set depot_tools_path=%script_path%depot_tools
 set PATH=%depot_tools_path%;%PATH%
 
-set GYP_MSVS_VERSION=2019
+set GYP_MSVS_VERSION=2022
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 
 :: 设置相关路径
@@ -99,7 +99,7 @@ if /i %debug_mode% == "true" (
 :: 查看支持的编译参数
 :: gn args ./args
 :: gn args ./args --list
-call %gn% gen %dispatch_path% --ide=vs2019 --args="%args%"
+call %gn% gen %dispatch_path% --ide=vs2022 --args="%args%"
 
 if not %errorlevel%==0 (
     echo "generate ninja failed"

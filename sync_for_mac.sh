@@ -63,7 +63,7 @@ gclient sync --force --with_branch_heads --with_tags -D
 cd $webrtc_src_path
 
 # webrtc最新release https://chromiumdash.appspot.com/branches
-git checkout refs/remotes/branch-heads/4472
+git checkout refs/remotes/branch-heads/6045
 
 # 切换分支以后必须sync，来同步不同分支的build tools
 # 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具

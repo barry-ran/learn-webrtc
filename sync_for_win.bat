@@ -27,7 +27,7 @@ if not %ERRORLEVEL% == 0 (
 set PATH=%depot_tools_path%;%PATH%
 
 :: https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md
-set GYP_MSVS_VERSION=2019
+set GYP_MSVS_VERSION=2022
 :: 使用本地vs
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 
@@ -64,7 +64,7 @@ if not %ERRORLEVEL% == 0 (
 
 cd %webrtc_src_path%
 :: webrtc最新release https://chromiumdash.appspot.com/branches
-call git checkout refs/remotes/branch-heads/4472
+call git checkout refs/remotes/branch-heads/6045
 
 :: 切换分支以后必须sync，来同步不同分支的build tools
 :: 不能再加--nohooks，否则不会下载webrtc\src\buildtools\win\gn.exe等编译工具
